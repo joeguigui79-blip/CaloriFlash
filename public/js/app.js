@@ -6,11 +6,12 @@
     quickResults: [],
     recipeDraft: { ingredients: [] },
     goal: 2000,
+    profileSettings: window.CFMeals.DEFAULT_SETTINGS,
+    todaySummary: null,
+    streakInfo: { current: 0, best: 0, completedDays: [] },
     offProduct: null,
     selectedFilter: "all"
   };
-
-  const el = {};
 
   function $(id) {
     return document.getElementById(id);
@@ -19,6 +20,15 @@
   function safeInt(value, fallback = 0) {
     const n = Number(value);
     return Number.isFinite(n) ? Math.round(n) : fallback;
+  }
+
+  function safeNum(value, fallback = 0) {
+    const n = Number(value);
+    return Number.isFinite(n) ? n : fallback;
+  }
+
+  function round1(value) {
+    return Math.round(value * 10) / 10;
   }
 
   function toast(message) {
@@ -36,19 +46,65 @@
     return 100;
   }
 
-  function renderMealBlocks(mealTotals) {
-    const root = $("meal-blocks");
-    root.innerHTML = "";
-    const labels = {
+  function mealTypeLabel(type) {
+    return {
       "petit-dejeuner": "Petit-dejeuner",
       dejeuner: "Dejeuner",
       diner: "Diner",
       collations: "Collations"
-    };
+    }[type] || type;
+  }
+
+  function getMacroTargets(settings = state.profileSettings) {
+    if (!settings) {
+      return { proteins: 125, carbs: 250, fats: 55 };
+    }
+    if (settings.macroMode === "grams") {
+      return settings.macroGrams;
+    }
+    return window.CFMeals.percentagesToGrams(settings.goalCalories, settings.macroPercentages);
+  }
+
+  function getMacroRatio(consumed, target) {
+    return Math.min(1.5, consumed / Math.max(1, target));
+  }
+
+  function computeBalanceScore(summary, targets) {
+    const macros = summary?.macros || { proteins: 0, carbs: 0, fats: 0 };
+    const pDiff = Math.abs((macros.proteins - targets.proteins) / Math.max(1, targets.proteins));
+    const cDiff = Math.abs((macros.carbs - targets.carbs) / Math.max(1, targets.carbs));
+    const fDiff = Math.abs((macros.fats - targets.fats) / Math.max(1, targets.fats));
+    const averageDiff = (pDiff + cDiff + fDiff) / 3;
+    const score = Math.max(0, Math.round(100 - averageDiff * 100));
+    return Math.min(100, score);
+  }
+
+  function getMotivationMessage(summary) {
+    const entriesCount = (summary?.entries || []).length;
+    if (entriesCount === 0) {
+      return "Bonne journee! N'oublie pas de noter tes repas";
+    }
+    if (summary.total < state.goal * 0.95) {
+      return "Tu es sur la bonne voie!";
+    }
+    if (summary.total <= state.goal * 1.05) {
+      return "Bravo, objectif atteint!";
+    }
+    return "Attention, tu depasses un peu aujourd'hui";
+  }
+
+  function renderMealBlocks(mealTotals, mealMacros) {
+    const root = $("meal-blocks");
+    root.innerHTML = "";
     window.CFMeals.MEAL_TYPES.forEach((type) => {
+      const m = (mealMacros && mealMacros[type]) || { proteins: 0, carbs: 0, fats: 0 };
       const card = document.createElement("div");
       card.className = "meal-block";
-      card.innerHTML = `<p class="small-label">${labels[type]}</p><h3>${mealTotals[type] || 0} kcal</h3>`;
+      card.innerHTML = `
+        <p class="small-label">${mealTypeLabel(type)}</p>
+        <h3>${mealTotals[type] || 0} kcal</h3>
+        <p class="meal-macros">P: ${m.proteins}g &middot; G: ${m.carbs}g &middot; L: ${m.fats}g</p>
+      `;
       root.appendChild(card);
     });
   }
@@ -59,6 +115,72 @@
     const offset = Math.max(0, circumference - circumference * Math.min(1, ratio));
     $("gauge-ring").style.strokeDashoffset = String(offset);
     $("gauge-percent").textContent = `${Math.round(ratio * 100)}%`;
+  }
+
+  function renderMacroProgress(summary, targets) {
+    const root = $("macro-progress-list");
+    const macros = summary.macros;
+    const rows = [
+      {
+        key: "proteins",
+        label: "Proteines",
+        consumed: macros.proteins,
+        target: targets.proteins,
+        color: "#3b82f6"
+      },
+      {
+        key: "carbs",
+        label: "Glucides",
+        consumed: macros.carbs,
+        target: targets.carbs,
+        color: "#fb923c"
+      },
+      {
+        key: "fats",
+        label: "Lipides",
+        consumed: macros.fats,
+        target: targets.fats,
+        color: "#facc15"
+      }
+    ];
+
+    root.innerHTML = "";
+    rows.forEach((row) => {
+      const ratio = getMacroRatio(row.consumed, row.target);
+      const line = document.createElement("div");
+      line.className = "macro-item";
+      line.innerHTML = `
+        <div class="macro-head">
+          <strong>${row.label}</strong>
+          <span>${round1(row.consumed)}g / ${round1(row.target)}g</span>
+        </div>
+        <div class="macro-bar-bg">
+          <div class="macro-bar-fill" style="width:${Math.min(100, ratio * 100)}%;background:${row.color}"></div>
+        </div>
+      `;
+      root.appendChild(line);
+    });
+  }
+
+  function renderStreakAndBadges() {
+    $("streak-current").textContent = String(state.streakInfo.current || 0);
+    $("streak-best").textContent = String(state.streakInfo.best || 0);
+    $("stats-streak-current").textContent = String(state.streakInfo.current || 0);
+    $("stats-streak-best").textContent = String(state.streakInfo.best || 0);
+
+    const badges = window.CFMeals.getEarnedBadges(state.streakInfo.best || 0);
+    const badgesRoot = $("badges-list");
+    badgesRoot.innerHTML = "";
+    if (!badges.length) {
+      badgesRoot.innerHTML = `<span class="badge muted">Aucun badge pour l'instant</span>`;
+      return;
+    }
+    badges.forEach((b) => {
+      const chip = document.createElement("span");
+      chip.className = "badge";
+      chip.textContent = `${b.threshold} jours - ${b.label}`;
+      badgesRoot.appendChild(chip);
+    });
   }
 
   function openTab(tab) {
@@ -78,11 +200,23 @@
     const date = window.CFMeals.todayStr();
     const entries = await window.CFMeals.getEntriesForDate(date);
     const summary = window.CFMeals.summarize(entries);
+    summary.entries = entries;
+    state.todaySummary = summary;
+
+    const targets = getMacroTargets();
+    const remaining = state.goal - summary.total;
+    const score = computeBalanceScore(summary, targets);
+
     $("today-total").textContent = String(summary.total);
     $("goal-value").textContent = String(state.goal);
     $("goal-input").value = String(state.goal);
+    $("remaining-kcal").textContent = String(Math.max(0, remaining));
+    $("motivation-msg").textContent = getMotivationMessage(summary);
+    $("balance-score").textContent = String(score);
+
     updateGauge(summary.total, state.goal);
-    renderMealBlocks(summary.mealTotals);
+    renderMealBlocks(summary.mealTotals, summary.mealMacros);
+    renderMacroProgress(summary, targets);
   }
 
   function buildFoodRow(food, options = {}) {
@@ -100,6 +234,7 @@
     `;
     row.querySelector('[data-action="pick"]').addEventListener("click", () => {
       state.selectedFood = food;
+      state.offProduct = null;
       renderPortions(food);
       toast(`${food.nom} selectionne`);
     });
@@ -145,7 +280,7 @@
     state.favorites = favorites.slice(0, 20);
     const recents = await window.CFMeals.getRecentFoods(20);
     state.recents = recents.map((r) => window.FOODS_MAP.get(r.id)).filter(Boolean);
-    renderQuickLists("");
+    renderQuickLists($("quick-search").value || "");
   }
 
   function renderQuickLists(query) {
@@ -197,7 +332,9 @@
     state.selectedFood = food;
     toast("Ajoute");
     await refreshToday();
+    await refreshStreak();
     await refreshFavoritesAndRecents();
+    await refreshStats();
   }
 
   async function renderTemplates() {
@@ -226,6 +363,8 @@
         const n = await window.CFRecipes.applyTemplate(tpl.id, window.CFMeals.todayStr());
         toast(`${n} aliments ajoutes`);
         await refreshToday();
+        await refreshStreak();
+        await refreshStats();
       });
       item.querySelector('[data-act="rename"]').addEventListener("click", async () => {
         const name = window.prompt("Nouveau nom", tpl.name);
@@ -303,6 +442,8 @@
         }
         toast("Recette ajoutee");
         await refreshToday();
+        await refreshStreak();
+        await refreshStats();
       });
       item.querySelector('[data-act="delete"]').addEventListener("click", async () => {
         await window.CFRecipes.removeRecipe(r.id);
@@ -310,6 +451,11 @@
       });
       list.appendChild(item);
     });
+  }
+
+  async function refreshStreak() {
+    state.streakInfo = await window.CFMeals.getStreakInfo(2);
+    renderStreakAndBadges();
   }
 
   async function refreshStats() {
@@ -321,6 +467,14 @@
     $("full-days").textContent = String(full);
     $("freq-foods").textContent = freq.join(", ") || "-";
     window.CFStats.drawSimpleBars($("stats-chart"), data, state.goal);
+
+    const macros7 = await window.CFStats.getLast7DaysMacros();
+    const avgMacros = window.CFStats.getMacroAverages(macros7);
+    $("avg-proteins").textContent = String(avgMacros.proteins);
+    $("avg-carbs").textContent = String(avgMacros.carbs);
+    $("avg-fats").textContent = String(avgMacros.fats);
+    window.CFStats.drawMacroLines($("macros-chart"), macros7, getMacroTargets());
+    renderStreakAndBadges();
   }
 
   async function saveTemplateFromToday() {
@@ -452,6 +606,82 @@
     }
   }
 
+  function renderSettingsForm() {
+    const s = state.profileSettings;
+    $("objective-type").value = s.objectiveType;
+    $("current-weight").value = s.currentWeight == null ? "" : String(s.currentWeight);
+    $("target-weight").value = s.targetWeight == null ? "" : String(s.targetWeight);
+    $("goal-calories-input").value = String(s.goalCalories);
+    $("macro-mode").value = s.macroMode;
+    $("macro-proteins-percent").value = String(s.macroPercentages.proteins);
+    $("macro-carbs-percent").value = String(s.macroPercentages.carbs);
+    $("macro-fats-percent").value = String(s.macroPercentages.fats);
+    $("macro-proteins-grams").value = String(round1(s.macroGrams.proteins));
+    $("macro-carbs-grams").value = String(round1(s.macroGrams.carbs));
+    $("macro-fats-grams").value = String(round1(s.macroGrams.fats));
+    updateMacroModeVisibility();
+  }
+
+  function updateMacroModeVisibility() {
+    const mode = $("macro-mode").value;
+    if (mode === "grams") {
+      $("macro-percent-fields").classList.add("hidden");
+      $("macro-gram-fields").classList.remove("hidden");
+    } else {
+      $("macro-percent-fields").classList.remove("hidden");
+      $("macro-gram-fields").classList.add("hidden");
+    }
+  }
+
+  function openSettings() {
+    renderSettingsForm();
+    const modal = $("settings-modal");
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeSettings() {
+    const modal = $("settings-modal");
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  function collectSettingsFromForm() {
+    const objectiveType = $("objective-type").value;
+    const goalCalories = safeInt($("goal-calories-input").value, state.goal);
+    const macroMode = $("macro-mode").value === "grams" ? "grams" : "percent";
+    const macroPercentages = {
+      proteins: safeInt($("macro-proteins-percent").value, 25),
+      carbs: safeInt($("macro-carbs-percent").value, 50),
+      fats: safeInt($("macro-fats-percent").value, 25)
+    };
+    const macroGrams = {
+      proteins: safeNum($("macro-proteins-grams").value, 125),
+      carbs: safeNum($("macro-carbs-grams").value, 250),
+      fats: safeNum($("macro-fats-grams").value, 55)
+    };
+    return {
+      objectiveType,
+      currentWeight: $("current-weight").value === "" ? null : safeNum($("current-weight").value, 0),
+      targetWeight: $("target-weight").value === "" ? null : safeNum($("target-weight").value, 0),
+      goalCalories,
+      macroMode,
+      macroPercentages,
+      macroGrams
+    };
+  }
+
+  async function saveSettingsFromModal() {
+    const data = collectSettingsFromForm();
+    const normalized = await window.CFMeals.saveProfileSettings(data);
+    state.profileSettings = normalized;
+    state.goal = normalized.goalCalories;
+    closeSettings();
+    toast("Objectifs personnalises enregistres");
+    await refreshToday();
+    await refreshStats();
+  }
+
   function initTheme() {
     const row = localStorage.getItem("caloriflash_theme");
     if (row === "dark") {
@@ -531,6 +761,19 @@
       });
     });
 
+    $("open-settings-btn").addEventListener("click", openSettings);
+    $("open-settings-inline-btn").addEventListener("click", openSettings);
+    $("close-settings-btn").addEventListener("click", closeSettings);
+    $("save-settings-btn").addEventListener("click", saveSettingsFromModal);
+    $("macro-mode").addEventListener("change", updateMacroModeVisibility);
+    $("suggest-goal-btn").addEventListener("click", () => {
+      const objectiveType = $("objective-type").value;
+      const currentGoal = safeInt($("goal-calories-input").value, state.goal);
+      const suggestion = window.CFMeals.suggestGoalCalories(objectiveType, currentGoal);
+      $("goal-calories-input").value = String(suggestion);
+      toast("Suggestion appliquee");
+    });
+
     $("floating-add-btn").addEventListener("click", () => openTab("add"));
     $("shortcut-favorites").addEventListener("click", () => {
       openTab("add");
@@ -546,6 +789,8 @@
       const copied = await window.CFMeals.copyYesterdayToToday();
       toast(`${copied} elements copies`);
       await refreshToday();
+      await refreshStreak();
+      await refreshStats();
     });
 
     $("quick-search").addEventListener("input", (e) => {
@@ -566,7 +811,10 @@
     $("save-goal-btn").addEventListener("click", async () => {
       const goal = Math.min(8000, Math.max(800, safeInt($("goal-input").value, 2000)));
       state.goal = goal;
-      await window.CFMeals.saveGoal(goal);
+      state.profileSettings = await window.CFMeals.saveProfileSettings({
+        ...state.profileSettings,
+        goalCalories: goal
+      });
       toast("Objectif enregistre");
       await refreshToday();
       await refreshStats();
@@ -597,10 +845,13 @@
   }
 
   async function bootAfterAuth() {
-    state.goal = await window.CFMeals.getGoal();
+    state.profileSettings = await window.CFMeals.getProfileSettings();
+    state.goal = state.profileSettings.goalCalories;
+
     addFiltersForSearch();
     await bindUi();
     await refreshToday();
+    await refreshStreak();
     await refreshFavoritesAndRecents();
     await renderTemplates();
     await renderRecipes();

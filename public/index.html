@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=2" />
+    <link rel="stylesheet" href="./css/style.css?v=4" />
   </head>
   <body>
     <div id="auth-overlay" class="overlay visible" aria-hidden="false">
@@ -28,18 +28,23 @@
         <h2>CaloriFlash</h2>
         <p class="byline">by Joseph GUIGNARD</p>
       </div>
-      <button id="theme-toggle" class="icon-btn" aria-label="Mode sombre">🌙</button>
+      <div class="topbar-actions">
+        <button id="open-settings-btn" class="icon-btn" aria-label="Objectifs et macros">⚙</button>
+        <button id="theme-toggle" class="icon-btn" aria-label="Mode sombre">🌙</button>
+      </div>
     </header>
 
     <main id="app" class="app hidden">
       <section id="view-today" class="view active">
-        <div class="card hero">
+        <div class="card hero hero-v2">
           <div>
             <p class="small-label">Aujourd'hui</p>
             <h3><span id="today-total">0</span> kcal</h3>
             <p>Objectif: <span id="goal-value">2000</span> kcal</p>
+            <p class="remaining-row">Restantes: <strong id="remaining-kcal">2000</strong> kcal</p>
+            <p id="motivation-msg" class="motivation-msg">Bonne journee! N'oublie pas de noter tes repas</p>
           </div>
-          <div class="gauge">
+          <div class="gauge gauge-lg">
             <svg viewBox="0 0 120 120" aria-hidden="true">
               <circle cx="60" cy="60" r="52" class="gauge-bg"></circle>
               <circle cx="60" cy="60" r="52" class="gauge-fill" id="gauge-ring"></circle>
@@ -49,11 +54,25 @@
         </div>
 
         <div class="card">
+          <div class="streak-row">
+            <p>🔥 Streak: <strong id="streak-current">0</strong> jours</p>
+            <p>Record: <strong id="streak-best">0</strong></p>
+          </div>
+          <p class="small-label">Score d'equilibre: <strong id="balance-score">0</strong>/100</p>
+        </div>
+
+        <div class="card">
+          <h3>Macros du jour</h3>
+          <div id="macro-progress-list" class="macro-list"></div>
+        </div>
+
+        <div class="card">
           <label for="goal-input">Objectif calorique</label>
           <div class="inline-row">
             <input id="goal-input" type="number" min="800" max="8000" step="50" />
             <button id="save-goal-btn" class="btn-secondary">Enregistrer</button>
           </div>
+          <button id="open-settings-inline-btn" class="btn-secondary settings-link-btn">Configurer objectifs et macros</button>
         </div>
 
         <div class="meals-grid" id="meal-blocks"></div>
@@ -127,6 +146,20 @@
           <p>Repas frequents: <strong id="freq-foods">-</strong></p>
           <canvas id="stats-chart" width="320" height="170" style="width:100%;height:auto"></canvas>
         </div>
+        <div class="card">
+          <h3>Macros (7 jours)</h3>
+          <p>Moy. proteines: <strong id="avg-proteins">0</strong> g</p>
+          <p>Moy. glucides: <strong id="avg-carbs">0</strong> g</p>
+          <p>Moy. lipides: <strong id="avg-fats">0</strong> g</p>
+          <canvas id="macros-chart" width="320" height="170" style="width:100%;height:auto"></canvas>
+        </div>
+        <div class="card">
+          <h3>Motivation</h3>
+          <p>🔥 Streak actuel: <strong id="stats-streak-current">0</strong> jours</p>
+          <p>Record streak: <strong id="stats-streak-best">0</strong> jours</p>
+          <p>Badges gagnes:</p>
+          <div id="badges-list" class="badges-list"></div>
+        </div>
       </section>
     </main>
 
@@ -155,14 +188,62 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=2"></script>
-    <script src="./js/db.js?v=2"></script>
-    <script src="./js/search.js?v=2"></script>
-    <script src="./js/meals.js?v=2"></script>
-    <script src="./js/recipes.js?v=2"></script>
-    <script src="./js/stats.js?v=2"></script>
-    <script src="./js/scanner.js?v=2"></script>
-    <script src="./js/auth.js?v=2"></script>
-    <script src="./js/app.js?v=2"></script>
+    <div id="settings-modal" class="modal hidden" aria-hidden="true">
+      <div class="modal-card">
+        <h3>Objectifs personnalises</h3>
+        <label for="objective-type">Objectif</label>
+        <select id="objective-type">
+          <option value="perdre">Perdre du poids</option>
+          <option value="maintenir">Maintenir</option>
+          <option value="prendre">Prendre du poids</option>
+        </select>
+        <div class="inline-row">
+          <input id="current-weight" type="number" min="30" max="350" step="0.1" placeholder="Poids actuel (kg)" />
+          <input id="target-weight" type="number" min="30" max="350" step="0.1" placeholder="Poids cible (kg, optionnel)" />
+        </div>
+        <label for="goal-calories-input">Objectif calorique quotidien</label>
+        <div class="inline-row">
+          <input id="goal-calories-input" type="number" min="1200" max="5000" step="50" />
+          <button id="suggest-goal-btn" class="btn-secondary">Suggestion</button>
+        </div>
+
+        <label for="macro-mode">Mode objectifs macros</label>
+        <select id="macro-mode">
+          <option value="percent">Pourcentages</option>
+          <option value="grams">Grammes</option>
+        </select>
+
+        <div id="macro-percent-fields">
+          <div class="inline-row">
+            <input id="macro-proteins-percent" type="number" min="5" max="80" step="1" placeholder="Proteines %" />
+            <input id="macro-carbs-percent" type="number" min="5" max="85" step="1" placeholder="Glucides %" />
+            <input id="macro-fats-percent" type="number" min="5" max="60" step="1" placeholder="Lipides %" />
+          </div>
+        </div>
+        <div id="macro-gram-fields" class="hidden">
+          <div class="inline-row">
+            <input id="macro-proteins-grams" type="number" min="20" max="500" step="1" placeholder="Proteines g" />
+            <input id="macro-carbs-grams" type="number" min="20" max="700" step="1" placeholder="Glucides g" />
+            <input id="macro-fats-grams" type="number" min="10" max="250" step="1" placeholder="Lipides g" />
+          </div>
+        </div>
+
+        <p class="small-label">Astuce: 25/50/25 correspond environ a 125g / 250g / 55g pour 2000 kcal.</p>
+        <div class="inline-row">
+          <button id="save-settings-btn" class="btn-primary">Enregistrer</button>
+          <button id="close-settings-btn" class="btn-secondary">Fermer</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/foods-db.js?v=4"></script>
+    <script src="./js/db.js?v=4"></script>
+    <script src="./js/search.js?v=4"></script>
+    <script src="./js/meals.js?v=4"></script>
+    <script src="./js/recipes.js?v=4"></script>
+    <script src="./js/stats.js?v=4"></script>
+    <script src="./js/scanner.js?v=4"></script>
+    <script src="./js/auth.js?v=4"></script>
+    <script src="./js/app.js?v=4"></script>
   </body>
 </html>

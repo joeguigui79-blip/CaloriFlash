@@ -50,6 +50,11 @@ body {
   min-width: 0;
 }
 
+.topbar-actions {
+  display: flex;
+  gap: 8px;
+}
+
 h2,
 h3,
 p {
@@ -98,9 +103,30 @@ p {
   align-items: center;
 }
 
+.hero-v2 {
+  align-items: flex-start;
+}
+
 .small-label {
   color: var(--muted);
   font-size: 0.9rem;
+}
+
+.remaining-row {
+  margin-top: 6px;
+}
+
+.motivation-msg {
+  margin-top: 8px;
+  color: var(--muted);
+  font-size: 0.92rem;
+}
+
+.streak-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
 }
 
 .gauge {
@@ -108,6 +134,12 @@ p {
   width: 100px;
   height: 100px;
   flex-shrink: 0;
+}
+
+.gauge-lg,
+.gauge-lg svg {
+  width: 118px;
+  height: 118px;
 }
 
 .gauge svg {
@@ -138,6 +170,68 @@ p {
   display: grid;
   place-items: center;
   font-weight: 700;
+}
+
+.macro-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 8px;
+}
+
+.macro-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.macro-head {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  font-size: 0.92rem;
+}
+
+.macro-bar-bg {
+  height: 10px;
+  width: 100%;
+  border-radius: 999px;
+  background: rgba(103, 112, 124, 0.18);
+  overflow: hidden;
+}
+
+.macro-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.35s ease;
+}
+
+.settings-link-btn {
+  margin-top: 8px;
+  width: 100%;
+}
+
+.badges-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(255, 167, 38, 0.2);
+  color: var(--text);
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.badge.muted {
+  background: rgba(103, 112, 124, 0.18);
+  color: var(--muted);
 }
 
 /* Ligne flex generique (2-3 elements) */
@@ -240,6 +334,15 @@ select {
   box-shadow: var(--shadow);
   min-width: 0;
   overflow: hidden;
+}
+
+.meal-macros {
+  font-size: 0.76rem;
+  color: var(--muted);
+  margin-top: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .quick-actions {
