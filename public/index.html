@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=4" />
+    <link rel="stylesheet" href="./css/style.css?v=5" />
   </head>
   <body>
     <div id="auth-overlay" class="overlay visible" aria-hidden="false">
@@ -23,16 +23,32 @@
       </div>
     </div>
 
-    <header class="topbar">
-      <div>
-        <h2>CaloriFlash</h2>
-        <p class="byline">by Joseph GUIGNARD</p>
+    <div class="sticky-top">
+      <header class="topbar">
+        <div>
+          <h2>CaloriFlash</h2>
+          <p class="byline">by Joseph GUIGNARD</p>
+        </div>
+        <div class="topbar-actions">
+          <button id="open-settings-btn" class="icon-btn" aria-label="Objectifs et macros">⚙</button>
+          <button id="theme-toggle" class="icon-btn" aria-label="Mode sombre">🌙</button>
+        </div>
+      </header>
+      <div id="macro-banner" class="macro-banner">
+        <div class="macro-pill">
+          <span class="macro-pill-label">Prot. <strong id="banner-proteins-val">0</strong>g <span class="macro-pill-target">/ <span id="banner-proteins-tgt">125</span>g</span></span>
+          <div class="macro-pill-bar"><div id="banner-proteins-bar" class="macro-pill-fill mpf-blue"></div></div>
+        </div>
+        <div class="macro-pill">
+          <span class="macro-pill-label">Gluc. <strong id="banner-carbs-val">0</strong>g <span class="macro-pill-target">/ <span id="banner-carbs-tgt">250</span>g</span></span>
+          <div class="macro-pill-bar"><div id="banner-carbs-bar" class="macro-pill-fill mpf-orange"></div></div>
+        </div>
+        <div class="macro-pill">
+          <span class="macro-pill-label">Lip. <strong id="banner-fats-val">0</strong>g <span class="macro-pill-target">/ <span id="banner-fats-tgt">55</span>g</span></span>
+          <div class="macro-pill-bar"><div id="banner-fats-bar" class="macro-pill-fill mpf-yellow"></div></div>
+        </div>
       </div>
-      <div class="topbar-actions">
-        <button id="open-settings-btn" class="icon-btn" aria-label="Objectifs et macros">⚙</button>
-        <button id="theme-toggle" class="icon-btn" aria-label="Mode sombre">🌙</button>
-      </div>
-    </header>
+    </div>
 
     <main id="app" class="app hidden">
       <section id="view-today" class="view active">
@@ -236,14 +252,14 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=4"></script>
-    <script src="./js/db.js?v=4"></script>
-    <script src="./js/search.js?v=4"></script>
-    <script src="./js/meals.js?v=4"></script>
-    <script src="./js/recipes.js?v=4"></script>
-    <script src="./js/stats.js?v=4"></script>
-    <script src="./js/scanner.js?v=4"></script>
-    <script src="./js/auth.js?v=4"></script>
-    <script src="./js/app.js?v=4"></script>
+    <script src="./js/foods-db.js?v=5"></script>
+    <script src="./js/db.js?v=5"></script>
+    <script src="./js/search.js?v=5"></script>
+    <script src="./js/meals.js?v=5"></script>
+    <script src="./js/recipes.js?v=5"></script>
+    <script src="./js/stats.js?v=5"></script>
+    <script src="./js/scanner.js?v=5"></script>
+    <script src="./js/auth.js?v=5"></script>
+    <script src="./js/app.js?v=5"></script>
   </body>
 </html>
