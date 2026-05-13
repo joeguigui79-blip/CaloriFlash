@@ -387,7 +387,7 @@
 
   function addFiltersForSearch() {
     const container = document.createElement("div");
-    container.className = "inline-row";
+    container.className = "filter-row";
     container.innerHTML = `
       <button class="btn-secondary" data-type="all">Tous</button>
       <button class="btn-secondary" data-type="bruts">Bruts</button>

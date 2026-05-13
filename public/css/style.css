@@ -29,6 +29,7 @@ body {
   background: var(--bg);
   color: var(--text);
   padding-bottom: calc(92px + env(safe-area-inset-bottom));
+  overflow-x: hidden;
 }
 
 .topbar {
@@ -131,6 +132,19 @@ p {
   display: flex;
   gap: 8px;
   margin-top: 8px;
+}
+
+.filter-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.filter-row button {
+  flex: 1 1 auto;
+  min-width: 0;
+  white-space: nowrap;
 }
 
 input,
