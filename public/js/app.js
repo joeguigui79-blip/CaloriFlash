@@ -31,11 +31,13 @@
     return Math.round(value * 10) / 10;
   }
 
+  let _toastTimer = null;
   function toast(message) {
     const node = $("toast");
     node.textContent = message;
     node.classList.add("show");
-    setTimeout(() => node.classList.remove("show"), 1800);
+    clearTimeout(_toastTimer);
+    _toastTimer = setTimeout(() => node.classList.remove("show"), 2500);
   }
 
   function getPortionGrams(food, selectedLabel) {

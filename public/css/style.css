@@ -541,19 +541,23 @@ select {
 .toast {
   position: fixed;
   left: 50%;
-  transform: translateX(-50%) translateY(160%);
+  transform: translateX(-50%) translateY(200px);
   bottom: calc(100px + env(safe-area-inset-bottom));
   background: #29303a;
   color: #fff;
   padding: 10px 14px;
   border-radius: 12px;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s ease, opacity 0.3s ease;
   z-index: 45;
   max-width: calc(100vw - 32px);
+  opacity: 0;
+  pointer-events: none;
 }
 
 .toast.show {
   transform: translateX(-50%) translateY(0);
+  opacity: 1;
+  pointer-events: auto;
 }
 
 .modal {
