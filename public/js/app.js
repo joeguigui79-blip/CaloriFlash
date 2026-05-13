@@ -119,21 +119,6 @@
     $("gauge-percent").textContent = `${Math.round(ratio * 100)}%`;
   }
 
-  function updateMacroBanner(summary, targets) {
-    const macros = (summary && summary.macros) || { proteins: 0, carbs: 0, fats: 0 };
-    const data = [
-      { val: "banner-proteins-val", tgt: "banner-proteins-tgt", bar: "banner-proteins-bar", consumed: macros.proteins, target: targets.proteins },
-      { val: "banner-carbs-val",    tgt: "banner-carbs-tgt",    bar: "banner-carbs-bar",    consumed: macros.carbs,    target: targets.carbs    },
-      { val: "banner-fats-val",     tgt: "banner-fats-tgt",     bar: "banner-fats-bar",     consumed: macros.fats,     target: targets.fats     }
-    ];
-    data.forEach(({ val, tgt, bar, consumed, target }) => {
-      $(val).textContent = String(round1(consumed));
-      $(tgt).textContent = String(round1(target));
-      const pct = Math.min(100, (consumed / Math.max(1, target)) * 100);
-      $(bar).style.width = pct + "%";
-    });
-  }
-
   function renderMacroProgress(summary, targets) {
     const root = $("macro-progress-list");
     const macros = summary.macros;
@@ -234,7 +219,6 @@
     updateGauge(summary.total, state.goal);
     renderMealBlocks(summary.mealTotals, summary.mealMacros);
     renderMacroProgress(summary, targets);
-    updateMacroBanner(summary, targets);
   }
 
   function buildFoodRow(food, options = {}) {

@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=6" />
+    <link rel="stylesheet" href="./css/style.css?v=7" />
   </head>
   <body>
     <div id="auth-overlay" class="overlay visible" aria-hidden="false">
@@ -23,32 +23,16 @@
       </div>
     </div>
 
-    <div class="sticky-top">
-      <header class="topbar">
-        <div>
-          <h2>CaloriFlash</h2>
-          <p class="byline">by Joseph GUIGNARD</p>
-        </div>
-        <div class="topbar-actions">
-          <button id="open-settings-btn" class="icon-btn" aria-label="Objectifs et macros">⚙</button>
-          <button id="theme-toggle" class="icon-btn" aria-label="Mode sombre">🌙</button>
-        </div>
-      </header>
-      <div id="macro-banner" class="macro-banner">
-        <div class="macro-pill">
-          <span class="macro-pill-label">Prot. <strong id="banner-proteins-val">0</strong>g <span class="macro-pill-target">/ <span id="banner-proteins-tgt">125</span>g</span></span>
-          <div class="macro-pill-bar"><div id="banner-proteins-bar" class="macro-pill-fill mpf-blue"></div></div>
-        </div>
-        <div class="macro-pill">
-          <span class="macro-pill-label">Gluc. <strong id="banner-carbs-val">0</strong>g <span class="macro-pill-target">/ <span id="banner-carbs-tgt">250</span>g</span></span>
-          <div class="macro-pill-bar"><div id="banner-carbs-bar" class="macro-pill-fill mpf-orange"></div></div>
-        </div>
-        <div class="macro-pill">
-          <span class="macro-pill-label">Lip. <strong id="banner-fats-val">0</strong>g <span class="macro-pill-target">/ <span id="banner-fats-tgt">55</span>g</span></span>
-          <div class="macro-pill-bar"><div id="banner-fats-bar" class="macro-pill-fill mpf-yellow"></div></div>
-        </div>
+    <header class="topbar">
+      <div>
+        <h2>CaloriFlash</h2>
+        <p class="byline">by Joseph GUIGNARD</p>
       </div>
-    </div>
+      <div class="topbar-actions">
+        <button id="open-settings-btn" class="icon-btn" aria-label="Objectifs et macros">⚙</button>
+        <button id="theme-toggle" class="icon-btn" aria-label="Mode sombre">🌙</button>
+      </div>
+    </header>
 
     <main id="app" class="app hidden">
       <section id="view-today" class="view active">
@@ -230,17 +214,37 @@
         </select>
 
         <div id="macro-percent-fields">
-          <div class="inline-row">
-            <input id="macro-proteins-percent" type="number" min="5" max="80" step="1" placeholder="Proteines %" />
-            <input id="macro-carbs-percent" type="number" min="5" max="85" step="1" placeholder="Glucides %" />
-            <input id="macro-fats-percent" type="number" min="5" max="60" step="1" placeholder="Lipides %" />
+          <div class="macro-field-group">
+            <label for="macro-proteins-percent">Proteines %</label>
+            <input id="macro-proteins-percent" type="number" min="5" max="80" step="1" placeholder="ex: 25" />
+            <p class="macro-hint">ex: viande, poisson, oeufs, legumineuses</p>
+          </div>
+          <div class="macro-field-group">
+            <label for="macro-carbs-percent">Glucides %</label>
+            <input id="macro-carbs-percent" type="number" min="5" max="85" step="1" placeholder="ex: 50" />
+            <p class="macro-hint">ex: pain, pates, riz, fruits, sucres</p>
+          </div>
+          <div class="macro-field-group">
+            <label for="macro-fats-percent">Lipides %</label>
+            <input id="macro-fats-percent" type="number" min="5" max="60" step="1" placeholder="ex: 25" />
+            <p class="macro-hint">ex: huile, beurre, fromage, noix</p>
           </div>
         </div>
         <div id="macro-gram-fields" class="hidden">
-          <div class="inline-row">
-            <input id="macro-proteins-grams" type="number" min="20" max="500" step="1" placeholder="Proteines g" />
-            <input id="macro-carbs-grams" type="number" min="20" max="700" step="1" placeholder="Glucides g" />
-            <input id="macro-fats-grams" type="number" min="10" max="250" step="1" placeholder="Lipides g" />
+          <div class="macro-field-group">
+            <label for="macro-proteins-grams">Proteines (g)</label>
+            <input id="macro-proteins-grams" type="number" min="20" max="500" step="1" placeholder="ex: 125" />
+            <p class="macro-hint">ex: viande, poisson, oeufs, legumineuses</p>
+          </div>
+          <div class="macro-field-group">
+            <label for="macro-carbs-grams">Glucides (g)</label>
+            <input id="macro-carbs-grams" type="number" min="20" max="700" step="1" placeholder="ex: 250" />
+            <p class="macro-hint">ex: pain, pates, riz, fruits, sucres</p>
+          </div>
+          <div class="macro-field-group">
+            <label for="macro-fats-grams">Lipides (g)</label>
+            <input id="macro-fats-grams" type="number" min="10" max="250" step="1" placeholder="ex: 55" />
+            <p class="macro-hint">ex: huile, beurre, fromage, noix</p>
           </div>
         </div>
 
@@ -252,14 +256,14 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=5"></script>
-    <script src="./js/db.js?v=5"></script>
-    <script src="./js/search.js?v=5"></script>
-    <script src="./js/meals.js?v=5"></script>
-    <script src="./js/recipes.js?v=5"></script>
-    <script src="./js/stats.js?v=5"></script>
-    <script src="./js/scanner.js?v=5"></script>
-    <script src="./js/auth.js?v=5"></script>
-    <script src="./js/app.js?v=6"></script>
+    <script src="./js/foods-db.js?v=6"></script>
+    <script src="./js/db.js?v=6"></script>
+    <script src="./js/search.js?v=6"></script>
+    <script src="./js/meals.js?v=6"></script>
+    <script src="./js/recipes.js?v=6"></script>
+    <script src="./js/stats.js?v=6"></script>
+    <script src="./js/scanner.js?v=6"></script>
+    <script src="./js/auth.js?v=6"></script>
+    <script src="./js/app.js?v=7"></script>
   </body>
 </html>
