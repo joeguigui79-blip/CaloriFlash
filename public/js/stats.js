@@ -30,8 +30,12 @@
 
   function drawSimpleBars(canvas, data, goal) {
     const ctx = canvas.getContext("2d");
-    const w = canvas.width;
-    const h = canvas.height;
+    const cssW = canvas.clientWidth || canvas.width;
+    const cssH = Math.round(cssW * (170 / 320));
+    canvas.width = cssW;
+    canvas.height = cssH;
+    const w = cssW;
+    const h = cssH;
     ctx.clearRect(0, 0, w, h);
 
     const pad = 18;

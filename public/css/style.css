@@ -23,6 +23,10 @@
   box-sizing: border-box;
 }
 
+html {
+  overflow-x: hidden;
+}
+
 body {
   margin: 0;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -30,6 +34,7 @@ body {
   color: var(--text);
   padding-bottom: calc(92px + env(safe-area-inset-bottom));
   overflow-x: hidden;
+  min-width: 0;
 }
 
 .topbar {
@@ -42,6 +47,7 @@ body {
   padding: 12px 16px;
   background: var(--bg);
   border-bottom: 1px solid rgba(120, 120, 120, 0.15);
+  min-width: 0;
 }
 
 h2,
@@ -58,6 +64,8 @@ p {
 
 .app {
   padding: 12px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .hidden {
@@ -68,6 +76,7 @@ p {
   display: none;
   gap: 12px;
   flex-direction: column;
+  min-width: 0;
 }
 
 .view.active {
@@ -79,6 +88,8 @@ p {
   border-radius: 18px;
   padding: 14px;
   box-shadow: var(--shadow);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .hero {
@@ -96,6 +107,7 @@ p {
   position: relative;
   width: 100px;
   height: 100px;
+  flex-shrink: 0;
 }
 
 .gauge svg {
@@ -128,12 +140,20 @@ p {
   font-weight: 700;
 }
 
+/* Ligne flex generique (2-3 elements) */
 .inline-row {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   margin-top: 8px;
+  min-width: 0;
 }
 
+.inline-row > * {
+  min-width: 0;
+}
+
+/* Filtres de categories (page Ajouter) */
 .filter-row {
   display: flex;
   flex-wrap: wrap;
@@ -147,6 +167,23 @@ p {
   white-space: nowrap;
 }
 
+/* Barre de recherche + bouton Scanner */
+.search-wrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.search-wrap input {
+  flex: 1 1 140px;
+  min-width: 0;
+}
+
+.search-wrap button {
+  flex-shrink: 0;
+}
+
 input,
 select,
 button {
@@ -156,6 +193,7 @@ button {
 input,
 select {
   flex: 1;
+  min-width: 0;
   padding: 12px;
   border-radius: 12px;
   border: 1px solid rgba(120, 120, 120, 0.35);
@@ -171,6 +209,7 @@ select {
   padding: 12px 14px;
   cursor: pointer;
   font-weight: 600;
+  flex-shrink: 0;
 }
 
 .btn-primary {
@@ -199,12 +238,22 @@ select {
   border-radius: 14px;
   padding: 12px;
   box-shadow: var(--shadow);
+  min-width: 0;
+  overflow: hidden;
 }
 
 .quick-actions {
   display: grid;
   gap: 8px;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.quick-actions button {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  padding-left: 8px;
+  padding-right: 8px;
 }
 
 .fab {
@@ -228,8 +277,8 @@ select {
   bottom: 0;
   padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
-  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 4px;
   background: var(--card);
   border-top: 1px solid rgba(120, 120, 120, 0.22);
   z-index: 20;
@@ -238,9 +287,14 @@ select {
 .bottom-tabs button {
   border: none;
   border-radius: 10px;
-  padding: 10px 6px;
+  padding: 10px 4px;
   background: transparent;
   color: var(--muted);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  font-size: 0.82rem;
 }
 
 .bottom-tabs button.active {
@@ -253,6 +307,7 @@ select {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
 }
 
 .list-item {
@@ -264,6 +319,27 @@ select {
   padding: 10px;
   box-shadow: var(--shadow);
   gap: 8px;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.list-item > div:first-child {
+  flex: 1 1 0;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.list-item > div:first-child strong,
+.list-item > div:first-child p {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.list-item > .inline-row {
+  flex-shrink: 0;
+  margin-top: 0;
+  flex-wrap: nowrap;
 }
 
 .list {
@@ -296,6 +372,7 @@ select {
   display: flex;
   flex-direction: column;
   gap: 10px;
+  min-width: 0;
 }
 
 .error {
@@ -314,6 +391,7 @@ select {
   border-radius: 12px;
   transition: transform 0.3s ease;
   z-index: 45;
+  max-width: calc(100vw - 32px);
 }
 
 .toast.show {
@@ -339,9 +417,12 @@ select {
 
 canvas {
   width: 100%;
+  max-width: 100%;
+  height: auto;
   background: rgba(139, 195, 74, 0.08);
   border-radius: 10px;
   margin-top: 8px;
+  display: block;
 }
 
 @media (min-width: 768px) {
