@@ -345,20 +345,6 @@ select {
   text-overflow: ellipsis;
 }
 
-.quick-actions {
-  display: grid;
-  gap: 8px;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.quick-actions button {
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  padding-left: 8px;
-  padding-right: 8px;
-}
-
 .fab {
   position: fixed;
   right: 16px;

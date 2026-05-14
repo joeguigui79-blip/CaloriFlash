@@ -1419,23 +1419,6 @@
     });
 
     $("floating-add-btn").addEventListener("click", () => openTab("add"));
-    $("shortcut-favorites").addEventListener("click", () => {
-      openTab("add");
-      $("quick-search").value = "";
-      renderQuickLists("");
-    });
-    $("shortcut-recents").addEventListener("click", () => {
-      openTab("add");
-      $("quick-search").value = "";
-      renderQuickLists("");
-    });
-    $("shortcut-copy-yesterday").addEventListener("click", async () => {
-      const copied = await window.CFMeals.copyYesterdayToToday();
-      toast(copied + " elements copies");
-      await refreshToday();
-      await refreshStreak();
-      await refreshStats();
-    });
 
     $("quick-search").addEventListener("input", (e) => {
       renderQuickLists(e.target.value);
