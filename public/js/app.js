@@ -5,6 +5,8 @@
     recents: [],
     quickResults: [],
     recipeDraft: { ingredients: [] },
+    tplDraft: { items: [] },
+    pendingTemplate: null,
     goal: 2000,
     profileSettings: window.CFMeals.DEFAULT_SETTINGS,
     todaySummary: null,
@@ -502,44 +504,146 @@
     list.innerHTML = "";
     const templates = await window.CFRecipes.listTemplates();
     if (!templates.length) {
-      list.innerHTML = '<div class="card"><p>Aucun repas type.</p></div>';
+      list.innerHTML = `
+        <div class="tpl-empty-state">
+          <p class="tpl-empty-icon">🍽</p>
+          <p class="tpl-empty-title">Aucun repas type pour l'instant</p>
+          <p class="tpl-empty-hint">Sauvegardez ce que vous mangez souvent pour le reutiliser en 1 tap.</p>
+        </div>`;
       return;
     }
     templates.forEach((tpl) => {
-      const item = document.createElement("div");
-      item.className = "list-item";
-      item.innerHTML = `
-        <div>
-          <strong>${tpl.name}</strong>
-          <p class="small-label">${tpl.items.length} aliments</p>
-        </div>
-        <div class="inline-row">
-          <button class="btn-primary" data-act="apply">Ajouter</button>
-          <button class="btn-secondary" data-act="rename">Renommer</button>
-          <button class="btn-secondary" data-act="delete">Suppr.</button>
-        </div>
-      `;
-      item.querySelector('[data-act="apply"]').addEventListener("click", async () => {
-        const n = await window.CFRecipes.applyTemplate(tpl.id, window.CFMeals.todayStr());
-        toast(`${n} aliments ajoutes`);
-        await refreshToday();
-        await refreshStreak();
-        await refreshStats();
-      });
-      item.querySelector('[data-act="rename"]').addEventListener("click", async () => {
-        const name = window.prompt("Nouveau nom", tpl.name);
-        if (name && name.trim()) {
-          await window.CFRecipes.renameTemplate(tpl.id, name.trim());
-          await renderTemplates();
+      let totalKcal = 0;
+      tpl.items.forEach((item) => {
+        const food = window.FOODS_MAP.get(item.foodId);
+        if (food) {
+          totalKcal += Math.round((food.calories_100g * item.grams) / 100);
         }
       });
-      item.querySelector('[data-act="delete"]').addEventListener("click", async () => {
+      const visibleItems = tpl.items.slice(0, 5);
+      const extraCount = tpl.items.length - visibleItems.length;
+      const chipsHtml = visibleItems.map((item) =>
+        `<span class="tpl-food-chip">${item.foodName} (${item.grams}g)</span>`
+      ).join("") + (extraCount > 0 ? `<span class="tpl-food-chip tpl-food-more">+${extraCount}</span>` : "");
+
+      const card = document.createElement("div");
+      card.className = "tpl-card";
+      card.innerHTML = `
+        <div class="tpl-card-header">
+          <div class="tpl-card-meta">
+            <p class="tpl-card-name">${tpl.name}</p>
+            <p class="tpl-card-kcal">${totalKcal} kcal &bull; ${tpl.items.length} aliment${tpl.items.length > 1 ? "s" : ""}</p>
+          </div>
+          <button class="btn-delete" data-act="delete" aria-label="Supprimer">🗑</button>
+        </div>
+        <div class="tpl-card-foods">${chipsHtml}</div>
+        <button class="btn-use-tpl" data-act="apply">Utiliser ce repas</button>
+      `;
+      card.querySelector('[data-act="apply"]').addEventListener("click", () => {
+        applyTemplateWithMealPicker(tpl.id, tpl.name, totalKcal);
+      });
+      card.querySelector('[data-act="delete"]').addEventListener("click", async () => {
+        if (!confirm(`Supprimer "${tpl.name}" ?`)) {
+          return;
+        }
         await window.CFRecipes.deleteTemplate(tpl.id);
         toast("Repas type supprime");
         await renderTemplates();
       });
-      list.appendChild(item);
+      list.appendChild(card);
     });
+  }
+
+  function applyTemplateWithMealPicker(tplId, tplName, totalKcal) {
+    state.pendingTemplate = { id: tplId, name: tplName, totalKcal };
+    $("meal-picker-tpl-name").textContent = tplName;
+    $("meal-picker-tpl-kcal").textContent = `${totalKcal} kcal`;
+    $("meal-picker-overlay").classList.remove("hidden");
+  }
+
+  async function applyTemplateToMealType(tplId, mealType) {
+    const templates = await window.CFRecipes.listTemplates();
+    const tpl = templates.find((t) => t.id === tplId);
+    if (!tpl) {
+      return 0;
+    }
+    let count = 0;
+    for (const item of tpl.items) {
+      const food = window.FOODS_MAP.get(item.foodId);
+      if (!food) {
+        continue;
+      }
+      await window.CFMeals.addEntry({
+        date: window.CFMeals.todayStr(),
+        mealType,
+        food,
+        grams: item.grams,
+        source: "template"
+      });
+      count += 1;
+    }
+    return count;
+  }
+
+  function renderTplDraft() {
+    const list = $("tpl-manual-draft");
+    const kcalEl = $("tpl-manual-kcal");
+    list.innerHTML = "";
+    let total = 0;
+    state.tplDraft.items.forEach((item, idx) => {
+      const food = window.FOODS_MAP.get(item.foodId);
+      const kcal = food ? Math.round((food.calories_100g * item.grams) / 100) : 0;
+      total += kcal;
+      const li = document.createElement("li");
+      li.className = "list-item";
+      li.innerHTML = `<span>${item.foodName} - ${item.grams}g (${kcal} kcal)</span><button class="btn-delete" aria-label="Retirer">&#10005;</button>`;
+      li.querySelector("button").addEventListener("click", () => {
+        state.tplDraft.items.splice(idx, 1);
+        renderTplDraft();
+      });
+      list.appendChild(li);
+    });
+    kcalEl.textContent = state.tplDraft.items.length ? `Total : ${total} kcal` : "";
+  }
+
+  function addToTplDraft() {
+    const query = $("tpl-manual-search").value.trim();
+    if (!query) {
+      toast("Recherchez un aliment d'abord");
+      return;
+    }
+    const match = window.CFSearch.rankFoods(query, { type: "all" })[0];
+    if (!match) {
+      toast("Aucun aliment trouve");
+      return;
+    }
+    const grams = Math.max(1, safeInt($("tpl-manual-qty").value, 100));
+    state.tplDraft.items.push({ foodId: match.id, foodName: match.nom, grams, mealType: "dejeuner" });
+    $("tpl-manual-search").value = "";
+    renderTplDraft();
+  }
+
+  async function saveTplManual() {
+    const name = $("tpl-manual-name").value.trim();
+    if (!name) {
+      toast("Nom du repas requis");
+      return;
+    }
+    if (!state.tplDraft.items.length) {
+      toast("Ajoutez des aliments d'abord");
+      return;
+    }
+    try {
+      await window.CFRecipes.saveTemplate({ name, items: state.tplDraft.items });
+      state.tplDraft.items = [];
+      $("tpl-manual-name").value = "";
+      renderTplDraft();
+      toast("Repas type cree !");
+      await renderTemplates();
+    } catch (err) {
+      console.error("saveTplManual error:", err);
+      toast("Erreur lors de la creation");
+    }
   }
 
   function updateRecipePreview() {
@@ -987,6 +1091,42 @@
     });
 
     $("save-template-btn").addEventListener("click", saveTemplateFromToday);
+
+    $("tpl-add-food-btn").addEventListener("click", addToTplDraft);
+    $("tpl-save-manual-btn").addEventListener("click", saveTplManual);
+    $("tpl-manual-search").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        addToTplDraft();
+      }
+    });
+
+    $("meal-picker-close").addEventListener("click", () => {
+      $("meal-picker-overlay").classList.add("hidden");
+      state.pendingTemplate = null;
+    });
+    $("meal-picker-overlay").addEventListener("click", (e) => {
+      if (e.target === $("meal-picker-overlay")) {
+        $("meal-picker-overlay").classList.add("hidden");
+        state.pendingTemplate = null;
+      }
+    });
+    document.querySelectorAll(".btn-meal-pick-big").forEach((btn) => {
+      btn.addEventListener("click", async () => {
+        if (!state.pendingTemplate) {
+          return;
+        }
+        const mealType = btn.dataset.meal;
+        const { id, name } = state.pendingTemplate;
+        $("meal-picker-overlay").classList.add("hidden");
+        state.pendingTemplate = null;
+        const n = await applyTemplateToMealType(id, mealType);
+        toast(`${name} ajoute (${n} aliment${n > 1 ? "s" : ""})`);
+        await refreshToday();
+        await refreshStreak();
+        await refreshStats();
+        openTab("today");
+      });
+    });
 
     $("recipe-add-ing-btn").addEventListener("click", addRecipeIngredient);
     $("save-recipe-btn").addEventListener("click", saveRecipeDraft);

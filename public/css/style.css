@@ -878,3 +878,196 @@ canvas {
   opacity: 0.88;
   transform: scale(0.99);
 }
+
+/* =============================================
+   Repas Types - Cards & Modals
+   ============================================= */
+
+.tpl-explain-card {
+  text-align: center;
+}
+
+.tpl-explain-icon {
+  font-size: 2.4rem;
+  margin: 0 0 6px;
+}
+
+.tpl-section-label {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--accent);
+  margin: 0 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.tpl-name-input {
+  width: 100%;
+  display: block;
+  margin-top: 10px;
+}
+
+.tpl-btn-full {
+  width: 100%;
+  margin-top: 10px;
+  padding: 14px;
+}
+
+.tpl-list-heading {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--muted);
+  margin: 4px 0 0;
+  padding: 0 4px;
+}
+
+/* Template card */
+.tpl-card {
+  background: var(--card);
+  border-radius: 18px;
+  padding: 16px;
+  box-shadow: var(--shadow);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.tpl-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.tpl-card-meta {
+  flex: 1;
+  min-width: 0;
+}
+
+.tpl-card-name {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: var(--text);
+  margin: 0;
+  line-height: 1.2;
+  word-break: break-word;
+}
+
+.tpl-card-kcal {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 5px 0 0;
+}
+
+.tpl-card-foods {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.tpl-food-chip {
+  background: rgba(139, 195, 74, 0.13);
+  color: var(--text);
+  font-size: 0.78rem;
+  padding: 4px 10px;
+  border-radius: 999px;
+  white-space: nowrap;
+}
+
+.tpl-food-more {
+  background: rgba(103, 112, 124, 0.15);
+  color: var(--muted);
+}
+
+.btn-use-tpl {
+  width: 100%;
+  padding: 16px;
+  border: none;
+  border-radius: 14px;
+  background: linear-gradient(140deg, var(--accent), var(--accent-2));
+  color: #fff;
+  font-size: 1rem;
+  font-weight: 800;
+  cursor: pointer;
+  letter-spacing: 0.03em;
+  box-shadow: 0 4px 14px rgba(139, 195, 74, 0.3);
+}
+
+.btn-use-tpl:active {
+  opacity: 0.88;
+  transform: scale(0.99);
+}
+
+/* Empty state */
+.tpl-empty-state {
+  text-align: center;
+  padding: 30px 16px;
+  background: var(--card);
+  border-radius: 18px;
+  box-shadow: var(--shadow);
+}
+
+.tpl-empty-icon {
+  font-size: 2.4rem;
+  margin: 0 0 10px;
+}
+
+.tpl-empty-title {
+  font-weight: 700;
+  font-size: 1rem;
+  margin: 0 0 6px;
+}
+
+.tpl-empty-hint {
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 0;
+}
+
+/* Meal picker bottom sheet */
+.tpl-picker-title {
+  font-size: 1.1rem;
+  font-weight: 800;
+  text-align: center;
+  margin: 0 0 4px;
+}
+
+.tpl-picker-tpl-name {
+  font-size: 1.05rem;
+  font-weight: 700;
+  text-align: center;
+  color: var(--accent);
+  margin: 0;
+  word-break: break-word;
+}
+
+.tpl-picker-kcal {
+  text-align: center;
+  font-size: 0.88rem;
+  color: var(--muted);
+  margin: 4px 0 0;
+}
+
+.tpl-meal-btns {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.btn-meal-pick-big {
+  width: 100%;
+  padding: 18px 16px;
+  border: none;
+  border-radius: 14px;
+  background: rgba(103, 112, 124, 0.1);
+  color: var(--text);
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  text-align: left;
+}
+
+.btn-meal-pick-big:active {
+  background: rgba(139, 195, 74, 0.2);
+}

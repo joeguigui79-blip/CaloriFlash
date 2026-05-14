@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=10" />
+    <link rel="stylesheet" href="./css/style.css?v=11" />
   </head>
   <body>
     <div id="auth-overlay" class="overlay visible" aria-hidden="false">
@@ -113,14 +113,38 @@
       </section>
 
       <section id="view-meals" class="view">
-        <div class="card">
+        <!-- Explication -->
+        <div class="card tpl-explain-card">
+          <p class="tpl-explain-icon">🍽</p>
           <h3>Mes repas types</h3>
-          <p class="small-label">Nommez et enregistrez les aliments du jour comme repas type.</p>
-          <div class="inline-row">
-            <input id="meal-template-name" type="text" placeholder="Nom du repas type" />
-            <button id="save-template-btn" class="btn-primary">Enregistrer</button>
-          </div>
+          <p class="small-label">Sauvegardez un repas que vous mangez souvent pour le reutiliser en 1 tap. Plus besoin de tout re-saisir !</p>
         </div>
+
+        <!-- Option 1 : depuis le repas du jour -->
+        <div class="card">
+          <p class="tpl-section-label">Depuis les aliments du jour</p>
+          <p class="small-label">Donne un nom aux aliments que tu as enregistres aujourd'hui et sauvegarde-les comme repas type.</p>
+          <input id="meal-template-name" type="text" placeholder="Ex : Mon petit-dej habituel" class="tpl-name-input" />
+          <button id="save-template-btn" class="btn-primary tpl-btn-full">Sauvegarder le repas du jour</button>
+        </div>
+
+        <!-- Option 2 : creation manuelle -->
+        <div class="card">
+          <p class="tpl-section-label">Creer manuellement</p>
+          <p class="small-label">Ajoute des aliments un par un pour construire ton repas type de toutes pieces.</p>
+          <input id="tpl-manual-name" type="text" placeholder="Nom du repas type" class="tpl-name-input" />
+          <div class="inline-row">
+            <input id="tpl-manual-search" type="search" placeholder="Rechercher un aliment..." />
+            <input id="tpl-manual-qty" type="number" min="1" value="100" style="max-width:80px;flex:0 0 80px" />
+            <button id="tpl-add-food-btn" class="btn-secondary" style="flex-shrink:0">+ Ajouter</button>
+          </div>
+          <ul id="tpl-manual-draft" class="list"></ul>
+          <p id="tpl-manual-kcal" class="small-label"></p>
+          <button id="tpl-save-manual-btn" class="btn-primary tpl-btn-full">Sauvegarder ce repas</button>
+        </div>
+
+        <!-- Liste des repas types -->
+        <p class="tpl-list-heading">Mes repas sauvegardes</p>
         <div id="templates-list" class="stack"></div>
       </section>
 
@@ -294,14 +318,31 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=10"></script>
-    <script src="./js/db.js?v=10"></script>
-    <script src="./js/search.js?v=10"></script>
-    <script src="./js/meals.js?v=10"></script>
-    <script src="./js/recipes.js?v=10"></script>
-    <script src="./js/stats.js?v=10"></script>
-    <script src="./js/scanner.js?v=10"></script>
-    <script src="./js/auth.js?v=10"></script>
-    <script src="./js/app.js?v=10"></script>
+    <div id="meal-picker-overlay" class="food-detail-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="food-detail-sheet">
+        <div class="food-detail-header">
+          <button id="meal-picker-close" class="btn-back-modal">&#8592; Annuler</button>
+        </div>
+        <p class="tpl-picker-title">Ajouter a quel repas ?</p>
+        <p class="tpl-picker-tpl-name" id="meal-picker-tpl-name"></p>
+        <p class="tpl-picker-kcal" id="meal-picker-tpl-kcal"></p>
+        <div class="tpl-meal-btns">
+          <button class="btn-meal-pick-big" data-meal="petit-dejeuner">Petit-dejeuner</button>
+          <button class="btn-meal-pick-big" data-meal="dejeuner">Dejeuner</button>
+          <button class="btn-meal-pick-big" data-meal="diner">Diner</button>
+          <button class="btn-meal-pick-big" data-meal="collations">Collations</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/foods-db.js?v=11"></script>
+    <script src="./js/db.js?v=11"></script>
+    <script src="./js/search.js?v=11"></script>
+    <script src="./js/meals.js?v=11"></script>
+    <script src="./js/recipes.js?v=11"></script>
+    <script src="./js/stats.js?v=11"></script>
+    <script src="./js/scanner.js?v=11"></script>
+    <script src="./js/auth.js?v=11"></script>
+    <script src="./js/app.js?v=11"></script>
   </body>
 </html>
