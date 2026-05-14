@@ -10,7 +10,9 @@
     todaySummary: null,
     streakInfo: { current: 0, best: 0, completedDays: [] },
     offProduct: null,
-    selectedFilter: "all"
+    selectedFilter: "all",
+    detailFood: null,
+    detailMealType: "dejeuner"
   };
 
   function $(id) {
@@ -55,6 +57,107 @@
       diner: "Diner",
       collations: "Collations"
     }[type] || type;
+  }
+
+  function formatPortionLabel(label) {
+    return label
+      .replace(/_/g, " ")
+      .replace(/\b\w/g, (c) => c.toUpperCase());
+  }
+
+  function openFoodDetail(food) {
+    state.detailFood = food;
+    const mealSel = $("meal-select");
+    state.detailMealType = mealSel ? mealSel.value : "dejeuner";
+
+    $("food-detail-name").textContent = food.nom;
+    $("food-detail-base-kcal").textContent = `${food.calories_100g} kcal / 100g · P:${food.proteines_100g}g G:${food.glucides_100g}g L:${food.lipides_100g}g`;
+    $("food-detail-meal-tag").textContent = mealTypeLabel(state.detailMealType);
+
+    const mealRow = $("food-detail-meal-btns");
+    mealRow.innerHTML = "";
+    window.CFMeals.MEAL_TYPES.forEach((type) => {
+      const btn = document.createElement("button");
+      btn.className = "btn-meal-pick" + (type === state.detailMealType ? " selected" : "");
+      btn.textContent = mealTypeLabel(type);
+      btn.addEventListener("click", () => {
+        state.detailMealType = type;
+        $("food-detail-meal-tag").textContent = mealTypeLabel(type);
+        mealRow.querySelectorAll(".btn-meal-pick").forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+      });
+      mealRow.appendChild(btn);
+    });
+
+    const portionContainer = $("food-detail-portions");
+    portionContainer.innerHTML = "";
+    const opts = window.CFSearch.formatPortionOptions(food.portions_standards);
+    const firstGrams = opts.length > 0 ? opts[0].grams : 100;
+    $("food-detail-qty").value = String(firstGrams);
+
+    opts.forEach((opt, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "btn-portion" + (idx === 0 ? " selected" : "");
+      btn.innerHTML = `${formatPortionLabel(opt.label)}<small>${opt.grams}g</small>`;
+      btn.addEventListener("click", () => {
+        portionContainer.querySelectorAll(".btn-portion").forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        $("food-detail-qty").value = String(opt.grams);
+        updateDetailCalc();
+      });
+      portionContainer.appendChild(btn);
+    });
+
+    updateDetailCalc();
+
+    const modal = $("food-detail-modal");
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeDetailModal() {
+    const modal = $("food-detail-modal");
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+    state.detailFood = null;
+  }
+
+  function updateDetailCalc() {
+    const food = state.detailFood;
+    if (!food) {
+      return;
+    }
+    const qty = Math.max(0, safeInt($("food-detail-qty").value, 100));
+    const kcal = Math.round((food.calories_100g * qty) / 100);
+    const proteins = round1((food.proteines_100g || 0) * qty / 100);
+    const carbs = round1((food.glucides_100g || 0) * qty / 100);
+    const fats = round1((food.lipides_100g || 0) * qty / 100);
+    $("food-detail-kcal-value").textContent = String(kcal);
+    $("food-detail-macros-preview").textContent = `P: ${proteins}g · G: ${carbs}g · L: ${fats}g`;
+  }
+
+  async function addFoodFromDetail() {
+    const food = state.detailFood;
+    if (!food) {
+      return;
+    }
+    const qty = Math.max(1, safeInt($("food-detail-qty").value, 100));
+    await window.CFMeals.addEntry({
+      date: window.CFMeals.todayStr(),
+      mealType: state.detailMealType,
+      food,
+      grams: qty,
+      source: food.id.startsWith("off-") ? "barcode" : "manual"
+    });
+    await window.CFMeals.upsertFavorite(food.id);
+    const label = mealTypeLabel(state.detailMealType);
+    closeDetailModal();
+    toast(`${food.nom} ajoute (${label})`);
+    openTab("today");
+    await refreshToday();
+    await refreshStreak();
+    await refreshFavoritesAndRecents();
+    await refreshStats();
   }
 
   function getMacroTargets(settings = state.profileSettings) {
@@ -278,22 +381,22 @@
 
   function buildFoodRow(food, options = {}) {
     const row = document.createElement("div");
-    row.className = "list-item";
+    row.className = "list-item food-row";
     row.innerHTML = `
       <div>
         <strong>${food.nom}</strong>
         <p class="small-label">${food.calories_100g} kcal / 100g</p>
       </div>
-      <div class="inline-row">
-        ${options.showFav ? '<button class="btn-secondary" data-action="fav">☆</button>' : ""}
-        <button class="btn-primary" data-action="pick">Choisir</button>
+      <div class="food-row-actions">
+        ${options.showFav ? '<button class="btn-fav-star" data-action="fav" aria-label="Ajouter aux favoris">&#9734;</button>' : ""}
+        <span class="food-row-arrow">&#8250;</span>
       </div>
     `;
-    row.querySelector('[data-action="pick"]').addEventListener("click", () => {
-      state.selectedFood = food;
-      state.offProduct = null;
-      renderPortions(food);
-      toast(`${food.nom} selectionne`);
+    row.addEventListener("click", (e) => {
+      if (e.target.closest('[data-action="fav"]')) {
+        return;
+      }
+      openFoodDetail(food);
     });
     const favBtn = row.querySelector('[data-action="fav"]');
     if (favBtn) {
@@ -657,7 +760,8 @@
       state.selectedFood = product;
       renderPortions(product);
       res.textContent = `${product.nom} - ${product.calories_100g} kcal/100g`;
-      toast("Produit detecte");
+      closeScanner();
+      openFoodDetail(product);
     } catch (err) {
       res.textContent = err.message || "Produit introuvable";
     }
@@ -894,6 +998,31 @@
       await fetchBarcode(code);
     });
 
+    $("food-detail-back").addEventListener("click", closeDetailModal);
+    $("food-detail-add-btn").addEventListener("click", addFoodFromDetail);
+    $("food-qty-minus").addEventListener("click", () => {
+      const v = Math.max(1, safeInt($("food-detail-qty").value, 100) - 10);
+      $("food-detail-qty").value = String(v);
+      updateDetailCalc();
+    });
+    $("food-qty-plus").addEventListener("click", () => {
+      const v = safeInt($("food-detail-qty").value, 100) + 10;
+      $("food-detail-qty").value = String(v);
+      updateDetailCalc();
+    });
+    $("food-detail-qty").addEventListener("input", updateDetailCalc);
+    $("food-detail-modal").addEventListener("click", (e) => {
+      if (e.target === $("food-detail-modal")) {
+        closeDetailModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") {
+        closeDetailModal();
+      }
+    });
+
     document.addEventListener("visibilitychange", () => {
       if (document.hidden) {
         closeScanner();
@@ -913,11 +1042,6 @@
     await renderTemplates();
     await renderRecipes();
     await refreshStats();
-    const firstFood = (window.FOODS_DB || [])[0];
-    if (firstFood) {
-      state.selectedFood = firstFood;
-      renderPortions(firstFood);
-    }
     openTab("today");
   }
 

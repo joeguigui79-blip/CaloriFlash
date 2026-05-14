@@ -1,4 +1,4 @@
-const CACHE_NAME = "caloriflash-v8";
+const CACHE_NAME = "caloriflash-v9";
 const CORE_ASSETS = [
   "./",
   "./index.html",

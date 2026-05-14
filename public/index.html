@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=8" />
+    <link rel="stylesheet" href="./css/style.css?v=9" />
   </head>
   <body>
     <div id="auth-overlay" class="overlay visible" aria-hidden="false">
@@ -90,22 +90,24 @@
 
       <section id="view-add" class="view">
         <div class="card">
-          <h3>Ajout rapide</h3>
+          <h3>Ajouter un aliment</h3>
           <div class="search-wrap">
             <input id="quick-search" type="search" placeholder="Rechercher un aliment..." />
             <button id="open-scanner-btn" class="btn-secondary">Scanner</button>
           </div>
-          <div class="inline-row">
+          <div class="meal-preselect-row">
+            <span class="meal-preselect-label">Repas :</span>
             <select id="meal-select">
               <option value="petit-dejeuner">Petit-dejeuner</option>
               <option value="dejeuner">Dejeuner</option>
               <option value="diner">Diner</option>
               <option value="collations">Collations</option>
             </select>
-            <select id="portion-select"></select>
-            <input id="quantity-input" type="number" min="1" step="1" value="100" />
           </div>
-          <button id="add-selected-btn" class="btn-primary">Ajouter au repas</button>
+          <!-- legacy inputs kept hidden for internal use -->
+          <select id="portion-select" class="hidden"></select>
+          <input id="quantity-input" type="number" min="1" step="1" value="100" class="hidden" />
+          <button id="add-selected-btn" class="hidden btn-primary">Ajouter au repas</button>
         </div>
         <div id="quick-lists" class="stack"></div>
       </section>
@@ -174,6 +176,39 @@
     </nav>
 
     <div id="toast" class="toast"></div>
+
+    <div id="food-detail-modal" class="food-detail-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="food-detail-sheet">
+        <div class="food-detail-header">
+          <button id="food-detail-back" class="btn-back-modal">&#8592; Retour</button>
+          <span id="food-detail-meal-tag" class="meal-tag">Dejeuner</span>
+        </div>
+        <h2 id="food-detail-name" class="food-detail-name">Nom aliment</h2>
+        <p id="food-detail-base-kcal" class="food-detail-base-kcal">0 kcal / 100g</p>
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">1</span> Repas</p>
+          <div id="food-detail-meal-btns" class="meal-btn-row"></div>
+        </div>
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">2</span> Portion</p>
+          <div id="food-detail-portions" class="portion-pills"></div>
+        </div>
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">3</span> Quantite (g)</p>
+          <div class="qty-stepper">
+            <button class="btn-stepper" id="food-qty-minus">&#8722;</button>
+            <input id="food-detail-qty" type="number" min="1" step="1" value="100" class="qty-input" />
+            <button class="btn-stepper" id="food-qty-plus">+</button>
+          </div>
+        </div>
+        <div class="food-detail-calories-display">
+          <span id="food-detail-kcal-value">0</span>
+          <span class="kcal-unit">kcal</span>
+        </div>
+        <p id="food-detail-macros-preview" class="food-detail-macros-preview">P: 0g &middot; G: 0g &middot; L: 0g</p>
+        <button id="food-detail-add-btn" class="btn-add-big">AJOUTER AU REPAS</button>
+      </div>
+    </div>
 
     <div id="scanner-modal" class="modal hidden" aria-hidden="true">
       <div class="modal-card">
@@ -258,14 +293,14 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=8"></script>
-    <script src="./js/db.js?v=8"></script>
-    <script src="./js/search.js?v=8"></script>
-    <script src="./js/meals.js?v=8"></script>
-    <script src="./js/recipes.js?v=8"></script>
-    <script src="./js/stats.js?v=8"></script>
-    <script src="./js/scanner.js?v=8"></script>
-    <script src="./js/auth.js?v=8"></script>
-    <script src="./js/app.js?v=8"></script>
+    <script src="./js/foods-db.js?v=9"></script>
+    <script src="./js/db.js?v=9"></script>
+    <script src="./js/search.js?v=9"></script>
+    <script src="./js/meals.js?v=9"></script>
+    <script src="./js/recipes.js?v=9"></script>
+    <script src="./js/stats.js?v=9"></script>
+    <script src="./js/scanner.js?v=9"></script>
+    <script src="./js/auth.js?v=9"></script>
+    <script src="./js/app.js?v=9"></script>
   </body>
 </html>
