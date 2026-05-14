@@ -95,6 +95,60 @@
     return "Attention, tu depasses un peu aujourd'hui";
   }
 
+  async function deleteEntry(id) {
+    await window.CFDB.remove(window.CFDB.STORES.entries, id);
+    toast("Aliment supprime");
+    await refreshToday();
+    await refreshStreak();
+    await refreshStats();
+  }
+
+  function renderTodayEntries(entries) {
+    const root = $("today-entries");
+    if (!root) {
+      return;
+    }
+    root.innerHTML = "";
+    if (!entries || entries.length === 0) {
+      return;
+    }
+    const grouped = {};
+    window.CFMeals.MEAL_TYPES.forEach((t) => {
+      grouped[t] = [];
+    });
+    entries.forEach((e) => {
+      if (grouped[e.mealType]) {
+        grouped[e.mealType].push(e);
+      }
+    });
+
+    window.CFMeals.MEAL_TYPES.forEach((type) => {
+      const typeEntries = grouped[type];
+      if (!typeEntries.length) {
+        return;
+      }
+      const block = document.createElement("div");
+      block.className = "card";
+      const h = document.createElement("h3");
+      h.textContent = mealTypeLabel(type);
+      block.appendChild(h);
+      typeEntries.forEach((entry) => {
+        const row = document.createElement("div");
+        row.className = "list-item";
+        row.innerHTML = `
+          <div>
+            <strong>${entry.foodName}</strong>
+            <p class="small-label">${entry.grams} g &middot; ${entry.calories} kcal &middot; P:${entry.proteins}g G:${entry.carbs}g L:${entry.fats}g</p>
+          </div>
+          <button class="btn-delete" aria-label="Supprimer cet aliment">&#x2715;</button>
+        `;
+        row.querySelector(".btn-delete").addEventListener("click", () => deleteEntry(entry.id));
+        block.appendChild(row);
+      });
+      root.appendChild(block);
+    });
+  }
+
   function renderMealBlocks(mealTotals, mealMacros) {
     const root = $("meal-blocks");
     root.innerHTML = "";
@@ -218,6 +272,7 @@
 
     updateGauge(summary.total, state.goal);
     renderMealBlocks(summary.mealTotals, summary.mealMacros);
+    renderTodayEntries(entries);
     renderMacroProgress(summary, targets);
   }
 
