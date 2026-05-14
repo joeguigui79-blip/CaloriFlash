@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=11" />
+    <link rel="stylesheet" href="./css/style.css?v=12" />
   </head>
   <body>
     <div id="auth-overlay" class="overlay visible" aria-hidden="false">
@@ -149,21 +149,53 @@
       </section>
 
       <section id="view-recipes" class="view">
-        <div class="card">
-          <h3>Recettes / Plats composes</h3>
-          <div class="inline-row">
-            <input id="recipe-name" type="text" placeholder="Nom de la recette" />
-            <input id="recipe-portions" type="number" min="1" value="2" />
-          </div>
-          <div class="inline-row">
-            <input id="recipe-search" type="search" placeholder="Ingredient..." />
-            <input id="recipe-qty" type="number" min="1" value="100" />
-            <button id="recipe-add-ing-btn" class="btn-secondary">Ajouter</button>
-          </div>
-          <ul id="recipe-ingredients" class="list"></ul>
-          <p id="recipe-kcal"></p>
-          <button id="save-recipe-btn" class="btn-primary">Enregistrer recette</button>
+        <!-- Explication -->
+        <div class="card tpl-explain-card">
+          <p class="tpl-explain-icon">🍲</p>
+          <h3>Recettes &amp; Plats maison</h3>
+          <p class="small-label">Creez vos recettes, indiquez le nombre de portions, et retrouvez les calories par portion. Ajoutez 1 portion en 1 tap !</p>
         </div>
+
+        <!-- Formulaire creation/edition -->
+        <div class="card">
+          <p class="tpl-section-label" id="recipe-form-label">Creer une recette</p>
+
+          <input id="recipe-name" type="text" placeholder="Nom de la recette (obligatoire)" class="recipe-name-input" />
+
+          <div class="recipe-portions-row">
+            <span class="recipe-portions-label">Portions</span>
+            <div class="recipe-portions-stepper">
+              <button class="btn-stepper" id="recipe-portions-minus">&#8722;</button>
+              <input id="recipe-portions" type="number" min="1" value="1" class="qty-input recipe-portions-input" />
+              <button class="btn-stepper" id="recipe-portions-plus">+</button>
+            </div>
+          </div>
+
+          <p class="recipe-ing-title">Ingredients</p>
+          <div class="recipe-search-row">
+            <input id="recipe-search" type="search" placeholder="Rechercher un ingredient..." />
+            <button id="recipe-add-ing-btn" class="btn-secondary">Chercher</button>
+          </div>
+
+          <ul id="recipe-ingredients" class="list recipe-draft-list"></ul>
+
+          <div id="recipe-totals" class="recipe-totals hidden">
+            <div class="recipe-total-box">
+              <p class="recipe-total-label">Total recette</p>
+              <p id="recipe-total-kcal" class="recipe-total-value">0 kcal</p>
+            </div>
+            <div class="recipe-total-box recipe-total-box--accent">
+              <p class="recipe-total-label">Par portion</p>
+              <p id="recipe-portion-kcal" class="recipe-total-value">0 kcal</p>
+            </div>
+          </div>
+
+          <button id="save-recipe-btn" class="btn-primary tpl-btn-full">Enregistrer la recette</button>
+          <button id="cancel-edit-recipe-btn" class="btn-secondary tpl-btn-full hidden" style="margin-top:6px">Annuler la modification</button>
+        </div>
+
+        <!-- Liste des recettes -->
+        <p class="tpl-list-heading">Mes recettes</p>
         <div id="recipes-list" class="stack"></div>
       </section>
 
@@ -335,14 +367,41 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=11"></script>
-    <script src="./js/db.js?v=11"></script>
-    <script src="./js/search.js?v=11"></script>
-    <script src="./js/meals.js?v=11"></script>
-    <script src="./js/recipes.js?v=11"></script>
-    <script src="./js/stats.js?v=11"></script>
-    <script src="./js/scanner.js?v=11"></script>
-    <script src="./js/auth.js?v=11"></script>
-    <script src="./js/app.js?v=11"></script>
+    <div id="recipe-ing-modal" class="food-detail-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="food-detail-sheet">
+        <div class="food-detail-header">
+          <button id="recipe-ing-back" class="btn-back-modal">&#8592; Retour</button>
+        </div>
+        <h2 id="recipe-ing-name" class="food-detail-name">Ingredient</h2>
+        <p id="recipe-ing-base-kcal" class="food-detail-base-kcal">0 kcal / 100g</p>
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">1</span> Portion</p>
+          <div id="recipe-ing-portions" class="portion-pills"></div>
+        </div>
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">2</span> Quantite (g)</p>
+          <div class="qty-stepper">
+            <button class="btn-stepper" id="recipe-ing-qty-minus">&#8722;</button>
+            <input id="recipe-ing-qty" type="number" min="1" step="1" value="100" class="qty-input" />
+            <button class="btn-stepper" id="recipe-ing-qty-plus">+</button>
+          </div>
+        </div>
+        <div class="food-detail-calories-display">
+          <span id="recipe-ing-kcal-value">0</span>
+          <span class="kcal-unit">kcal</span>
+        </div>
+        <button id="recipe-ing-add-btn" class="btn-add-big">AJOUTER A LA RECETTE</button>
+      </div>
+    </div>
+
+    <script src="./js/foods-db.js?v=12"></script>
+    <script src="./js/db.js?v=12"></script>
+    <script src="./js/search.js?v=12"></script>
+    <script src="./js/meals.js?v=12"></script>
+    <script src="./js/recipes.js?v=12"></script>
+    <script src="./js/stats.js?v=12"></script>
+    <script src="./js/scanner.js?v=12"></script>
+    <script src="./js/auth.js?v=12"></script>
+    <script src="./js/app.js?v=12"></script>
   </body>
 </html>

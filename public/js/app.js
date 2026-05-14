@@ -7,6 +7,9 @@
     recipeDraft: { ingredients: [] },
     tplDraft: { items: [] },
     pendingTemplate: null,
+    pendingRecipe: null,
+    editingRecipeId: null,
+    recipeIngFood: null,
     goal: 2000,
     profileSettings: window.CFMeals.DEFAULT_SETTINGS,
     todaySummary: null,
@@ -652,14 +655,29 @@
       ingredients: state.recipeDraft.ingredients
     };
     const kcal = window.CFRecipes.calcRecipe(recipe);
-    $("recipe-kcal").textContent = `Total: ${kcal.total} kcal • Par portion: ${kcal.perPortion} kcal`;
+    const totalsEl = $("recipe-totals");
+    if (state.recipeDraft.ingredients.length > 0) {
+      totalsEl.classList.remove("hidden");
+      $("recipe-total-kcal").textContent = `${kcal.total} kcal`;
+      $("recipe-portion-kcal").textContent = `${kcal.perPortion} kcal`;
+    } else {
+      totalsEl.classList.add("hidden");
+    }
     const list = $("recipe-ingredients");
     list.innerHTML = "";
     state.recipeDraft.ingredients.forEach((ing, index) => {
+      const food = window.FOODS_MAP.get(ing.foodId);
+      const ingKcal = food ? Math.round((food.calories_100g * ing.grams) / 100) : 0;
       const li = document.createElement("li");
       li.className = "list-item";
-      li.innerHTML = `<span>${ing.foodName} - ${ing.grams} g</span><button class="btn-secondary">Retirer</button>`;
-      li.querySelector("button").addEventListener("click", () => {
+      li.innerHTML = `
+        <div>
+          <strong>${ing.foodName}</strong>
+          <p class="small-label">${ing.grams}g &middot; ${ingKcal} kcal</p>
+        </div>
+        <button class="btn-delete" aria-label="Retirer">&#10005;</button>
+      `;
+      li.querySelector(".btn-delete").addEventListener("click", () => {
         state.recipeDraft.ingredients.splice(index, 1);
         updateRecipePreview();
       });
@@ -672,48 +690,53 @@
     list.innerHTML = "";
     const rows = await window.CFRecipes.listRecipes();
     if (!rows.length) {
-      list.innerHTML = '<div class="card"><p>Aucune recette enregistree.</p></div>';
+      list.innerHTML = `
+        <div class="tpl-empty-state">
+          <p class="tpl-empty-icon">🍲</p>
+          <p class="tpl-empty-title">Aucune recette pour l'instant</p>
+          <p class="tpl-empty-hint">Creez votre premiere recette avec ses ingredients et le nombre de portions.</p>
+        </div>`;
       return;
     }
     rows.forEach((r) => {
-      const item = document.createElement("div");
-      item.className = "list-item";
-      item.innerHTML = `
-        <div>
-          <strong>${r.name}</strong>
-          <p class="small-label">${r.kcalPerPortion} kcal / portion (${r.portions} portions)</p>
+      const visibleIngs = r.ingredients.slice(0, 5);
+      const extraCount = r.ingredients.length - visibleIngs.length;
+      const chipsHtml = visibleIngs.map((ing) =>
+        `<span class="tpl-food-chip">${ing.foodName} (${ing.grams}g)</span>`
+      ).join("") + (extraCount > 0 ? `<span class="tpl-food-chip tpl-food-more">+${extraCount}</span>` : "");
+
+      const card = document.createElement("div");
+      card.className = "tpl-card";
+      card.innerHTML = `
+        <div class="tpl-card-header">
+          <div class="tpl-card-meta">
+            <p class="tpl-card-name">${r.name}</p>
+            <p class="tpl-card-kcal">${r.kcalPerPortion} kcal / portion &bull; ${r.portions} portion${r.portions > 1 ? "s" : ""}</p>
+            <p class="recipe-total-tag">${r.totalKcal} kcal au total</p>
+          </div>
+          <div class="recipe-card-actions-top">
+            <button class="btn-recipe-edit" data-act="edit" aria-label="Modifier">&#9998;</button>
+            <button class="btn-delete" data-act="delete" aria-label="Supprimer">🗑</button>
+          </div>
         </div>
-        <div class="inline-row">
-          <button class="btn-primary" data-act="add">+1 portion</button>
-          <button class="btn-secondary" data-act="delete">Suppr.</button>
-        </div>
+        <div class="tpl-card-foods">${chipsHtml}</div>
+        <button class="btn-use-tpl" data-act="add">+ Ajouter 1 portion</button>
       `;
-      item.querySelector('[data-act="add"]').addEventListener("click", async () => {
-        for (let i = 0; i < r.ingredients.length; i += 1) {
-          const ing = r.ingredients[i];
-          const food = window.FOODS_MAP.get(ing.foodId);
-          if (!food) {
-            continue;
-          }
-          const grams = Math.max(1, Math.round(ing.grams / Math.max(1, r.portions)));
-          await window.CFMeals.addEntry({
-            date: window.CFMeals.todayStr(),
-            mealType: "diner",
-            food,
-            grams,
-            source: "recipe"
-          });
-        }
-        toast("Recette ajoutee");
-        await refreshToday();
-        await refreshStreak();
-        await refreshStats();
+      card.querySelector('[data-act="add"]').addEventListener("click", () => {
+        addRecipeWithMealPicker(r);
       });
-      item.querySelector('[data-act="delete"]').addEventListener("click", async () => {
+      card.querySelector('[data-act="edit"]').addEventListener("click", () => {
+        editRecipe(r);
+      });
+      card.querySelector('[data-act="delete"]').addEventListener("click", async () => {
+        if (!confirm(`Supprimer "${r.name}" ?`)) {
+          return;
+        }
         await window.CFRecipes.removeRecipe(r.id);
+        toast("Recette supprimee");
         await renderRecipes();
       });
-      list.appendChild(item);
+      list.appendChild(card);
     });
   }
 
@@ -771,29 +794,145 @@
     }
   }
 
-  async function addRecipeIngredient() {
+  function openRecipeIngSheet(food) {
+    state.recipeIngFood = food;
+    $("recipe-ing-name").textContent = food.nom;
+    $("recipe-ing-base-kcal").textContent = `${food.calories_100g} kcal / 100g`;
+
+    const portionContainer = $("recipe-ing-portions");
+    portionContainer.innerHTML = "";
+    const opts = window.CFSearch.formatPortionOptions(food.portions_standards);
+    const firstGrams = opts.length > 0 ? opts[0].grams : 100;
+    $("recipe-ing-qty").value = String(firstGrams);
+
+    opts.forEach((opt, idx) => {
+      const btn = document.createElement("button");
+      btn.className = "btn-portion" + (idx === 0 ? " selected" : "");
+      btn.innerHTML = `${formatPortionLabel(opt.label)}<small>${opt.grams}g</small>`;
+      btn.addEventListener("click", () => {
+        portionContainer.querySelectorAll(".btn-portion").forEach((b) => b.classList.remove("selected"));
+        btn.classList.add("selected");
+        $("recipe-ing-qty").value = String(opt.grams);
+        updateRecipeIngCalc();
+      });
+      portionContainer.appendChild(btn);
+    });
+
+    updateRecipeIngCalc();
+    const modal = $("recipe-ing-modal");
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+  }
+
+  function closeRecipeIngSheet() {
+    $("recipe-ing-modal").classList.add("hidden");
+    $("recipe-ing-modal").setAttribute("aria-hidden", "true");
+    state.recipeIngFood = null;
+  }
+
+  function updateRecipeIngCalc() {
+    const food = state.recipeIngFood;
+    if (!food) {
+      return;
+    }
+    const qty = Math.max(0, safeInt($("recipe-ing-qty").value, 100));
+    const kcal = Math.round((food.calories_100g * qty) / 100);
+    $("recipe-ing-kcal-value").textContent = String(kcal);
+  }
+
+  function addFoodToRecipeDraft() {
+    const food = state.recipeIngFood;
+    if (!food) {
+      return;
+    }
+    const qty = Math.max(1, safeInt($("recipe-ing-qty").value, 100));
+    state.recipeDraft.ingredients.push({ foodId: food.id, foodName: food.nom, grams: qty });
+    closeRecipeIngSheet();
+    $("recipe-search").value = "";
+    updateRecipePreview();
+  }
+
+  function addRecipeWithMealPicker(recipe) {
+    state.pendingRecipe = recipe;
+    state.pendingTemplate = null;
+    $("meal-picker-tpl-name").textContent = recipe.name;
+    $("meal-picker-tpl-kcal").textContent = `${recipe.kcalPerPortion} kcal / portion`;
+    $("meal-picker-overlay").classList.remove("hidden");
+  }
+
+  function editRecipe(recipe) {
+    state.editingRecipeId = recipe.id;
+    $("recipe-name").value = recipe.name;
+    $("recipe-portions").value = String(recipe.portions);
+    state.recipeDraft.ingredients = recipe.ingredients.map((i) => ({
+      foodId: i.foodId,
+      foodName: i.foodName,
+      grams: i.grams
+    }));
+    $("recipe-form-label").textContent = "Modifier la recette";
+    $("save-recipe-btn").textContent = "Mettre a jour la recette";
+    $("cancel-edit-recipe-btn").classList.remove("hidden");
+    updateRecipePreview();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function cancelEditRecipe() {
+    state.editingRecipeId = null;
+    state.recipeDraft.ingredients = [];
+    $("recipe-name").value = "";
+    $("recipe-portions").value = "1";
+    $("recipe-form-label").textContent = "Creer une recette";
+    $("save-recipe-btn").textContent = "Enregistrer la recette";
+    $("cancel-edit-recipe-btn").classList.add("hidden");
+    updateRecipePreview();
+  }
+
+  async function applyRecipeToMealType(recipe, mealType) {
+    const portionsCount = Math.max(1, recipe.portions);
+    for (const ing of recipe.ingredients) {
+      const food = window.FOODS_MAP.get(ing.foodId);
+      if (!food) {
+        continue;
+      }
+      const grams = Math.max(1, Math.round(ing.grams / portionsCount));
+      await window.CFMeals.addEntry({
+        date: window.CFMeals.todayStr(),
+        mealType,
+        food,
+        grams,
+        source: "recipe"
+      });
+    }
+  }
+
+  function addRecipeIngredient() {
     const query = $("recipe-search").value.trim();
     if (!query) {
-      toast("Ingredient requis");
+      toast("Saisissez un ingredient d'abord");
       return;
     }
     const match = window.CFSearch.rankFoods(query, { type: "all" })[0];
     if (!match) {
-      toast("Aucun ingredient");
+      toast("Aucun ingredient trouve");
       return;
     }
-    const grams = Math.max(1, safeInt($("recipe-qty").value, 100));
-    state.recipeDraft.ingredients.push({ foodId: match.id, foodName: match.nom, grams });
-    $("recipe-search").value = "";
-    updateRecipePreview();
+    openRecipeIngSheet(match);
   }
 
   async function saveRecipeDraft() {
     const name = $("recipe-name").value.trim();
     const portions = Math.max(1, safeInt($("recipe-portions").value, 1));
-    if (!name || !state.recipeDraft.ingredients.length) {
-      toast("Nom + ingredients requis");
+    if (!name) {
+      toast("Nom de la recette requis");
       return;
+    }
+    if (!state.recipeDraft.ingredients.length) {
+      toast("Ajoutez au moins un ingredient");
+      return;
+    }
+    if (state.editingRecipeId) {
+      await window.CFRecipes.removeRecipe(state.editingRecipeId);
+      state.editingRecipeId = null;
     }
     await window.CFRecipes.saveRecipe({
       name,
@@ -802,9 +941,12 @@
     });
     state.recipeDraft.ingredients = [];
     $("recipe-name").value = "";
-    $("recipe-portions").value = "2";
+    $("recipe-portions").value = "1";
+    $("recipe-form-label").textContent = "Creer une recette";
+    $("save-recipe-btn").textContent = "Enregistrer la recette";
+    $("cancel-edit-recipe-btn").classList.add("hidden");
     updateRecipePreview();
-    toast("Recette enregistree");
+    toast("Recette enregistree !");
     await renderRecipes();
   }
 
@@ -1103,34 +1245,79 @@
     $("meal-picker-close").addEventListener("click", () => {
       $("meal-picker-overlay").classList.add("hidden");
       state.pendingTemplate = null;
+      state.pendingRecipe = null;
     });
     $("meal-picker-overlay").addEventListener("click", (e) => {
       if (e.target === $("meal-picker-overlay")) {
         $("meal-picker-overlay").classList.add("hidden");
         state.pendingTemplate = null;
+        state.pendingRecipe = null;
       }
     });
     document.querySelectorAll(".btn-meal-pick-big").forEach((btn) => {
       btn.addEventListener("click", async () => {
-        if (!state.pendingTemplate) {
-          return;
-        }
         const mealType = btn.dataset.meal;
-        const { id, name } = state.pendingTemplate;
-        $("meal-picker-overlay").classList.add("hidden");
-        state.pendingTemplate = null;
-        const n = await applyTemplateToMealType(id, mealType);
-        toast(`${name} ajoute (${n} aliment${n > 1 ? "s" : ""})`);
-        await refreshToday();
-        await refreshStreak();
-        await refreshStats();
-        openTab("today");
+        if (state.pendingRecipe) {
+          const recipe = state.pendingRecipe;
+          $("meal-picker-overlay").classList.add("hidden");
+          state.pendingRecipe = null;
+          await applyRecipeToMealType(recipe, mealType);
+          toast(`${recipe.name} ajoute (${recipe.kcalPerPortion} kcal)`);
+          await refreshToday();
+          await refreshStreak();
+          await refreshStats();
+          openTab("today");
+        } else if (state.pendingTemplate) {
+          const { id, name } = state.pendingTemplate;
+          $("meal-picker-overlay").classList.add("hidden");
+          state.pendingTemplate = null;
+          const n = await applyTemplateToMealType(id, mealType);
+          toast(`${name} ajoute (${n} aliment${n > 1 ? "s" : ""})`);
+          await refreshToday();
+          await refreshStreak();
+          await refreshStats();
+          openTab("today");
+        }
       });
     });
 
     $("recipe-add-ing-btn").addEventListener("click", addRecipeIngredient);
+    $("recipe-search").addEventListener("keydown", (e) => {
+      if (e.key === "Enter") {
+        addRecipeIngredient();
+      }
+    });
     $("save-recipe-btn").addEventListener("click", saveRecipeDraft);
+    $("cancel-edit-recipe-btn").addEventListener("click", cancelEditRecipe);
     $("recipe-portions").addEventListener("input", updateRecipePreview);
+    $("recipe-portions-minus").addEventListener("click", () => {
+      const v = Math.max(1, safeInt($("recipe-portions").value, 1) - 1);
+      $("recipe-portions").value = String(v);
+      updateRecipePreview();
+    });
+    $("recipe-portions-plus").addEventListener("click", () => {
+      const v = safeInt($("recipe-portions").value, 1) + 1;
+      $("recipe-portions").value = String(v);
+      updateRecipePreview();
+    });
+    $("recipe-ing-back").addEventListener("click", closeRecipeIngSheet);
+    $("recipe-ing-add-btn").addEventListener("click", addFoodToRecipeDraft);
+    $("recipe-ing-qty-minus").addEventListener("click", () => {
+      const v = Math.max(1, safeInt($("recipe-ing-qty").value, 100) - 10);
+      $("recipe-ing-qty").value = String(v);
+      updateRecipeIngCalc();
+    });
+    $("recipe-ing-qty-plus").addEventListener("click", () => {
+      const v = safeInt($("recipe-ing-qty").value, 100) + 10;
+      $("recipe-ing-qty").value = String(v);
+      updateRecipeIngCalc();
+    });
+    $("recipe-ing-qty").addEventListener("input", updateRecipeIngCalc);
+    $("recipe-ing-modal").addEventListener("click", (e) => {
+      if (e.target === $("recipe-ing-modal")) {
+        closeRecipeIngSheet();
+      }
+    });
 
     $("open-scanner-btn").addEventListener("click", openScanner);
     $("scanner-close-btn").addEventListener("click", closeScanner);

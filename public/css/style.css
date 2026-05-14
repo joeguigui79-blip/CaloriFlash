@@ -1071,3 +1071,133 @@ canvas {
 .btn-meal-pick-big:active {
   background: rgba(139, 195, 74, 0.2);
 }
+
+/* =============================================
+   Recettes - Formulaire
+   ============================================= */
+
+.recipe-name-input {
+  display: block;
+  width: 100%;
+  margin-top: 10px;
+  font-size: 1rem;
+}
+
+.recipe-portions-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 14px;
+  gap: 10px;
+}
+
+.recipe-portions-label {
+  font-weight: 700;
+  font-size: 0.95rem;
+  flex-shrink: 0;
+}
+
+.recipe-portions-stepper {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.recipe-portions-input {
+  width: 70px;
+  max-width: 70px;
+  flex: 0 0 70px;
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.recipe-ing-title {
+  font-weight: 700;
+  font-size: 0.88rem;
+  color: var(--accent);
+  margin: 16px 0 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.recipe-search-row {
+  display: flex;
+  gap: 8px;
+}
+
+.recipe-search-row input {
+  flex: 1;
+  min-width: 0;
+}
+
+.recipe-draft-list {
+  margin: 8px 0 0;
+}
+
+.recipe-totals {
+  display: flex;
+  gap: 10px;
+  margin-top: 14px;
+}
+
+.recipe-total-box {
+  flex: 1;
+  background: rgba(103, 112, 124, 0.08);
+  border-radius: 14px;
+  padding: 12px;
+  text-align: center;
+}
+
+.recipe-total-box--accent {
+  background: rgba(139, 195, 74, 0.15);
+}
+
+.recipe-total-label {
+  font-size: 0.76rem;
+  color: var(--muted);
+  font-weight: 600;
+  margin: 0 0 4px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.recipe-total-value {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--text);
+  margin: 0;
+}
+
+/* Recipe saved card extras */
+.recipe-total-tag {
+  font-size: 0.8rem;
+  color: var(--muted);
+  margin: 2px 0 0;
+}
+
+.recipe-card-actions-top {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.btn-recipe-edit {
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(139, 195, 74, 0.18);
+  font-size: 0.9rem;
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.btn-recipe-edit:active {
+  background: rgba(139, 195, 74, 0.35);
+}
