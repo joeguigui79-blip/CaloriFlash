@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=13" />
+    <link rel="stylesheet" href="./css/style.css?v=14" />
   </head>
   <body>
     <div id="auth-overlay" class="overlay visible" aria-hidden="false">
@@ -364,6 +364,10 @@
           <button id="save-settings-btn" class="btn-primary">Enregistrer</button>
           <button id="close-settings-btn" class="btn-secondary">Fermer</button>
         </div>
+        <div class="reset-zone">
+          <p class="reset-zone-label">Zone dangereuse</p>
+          <button id="open-reset-btn" class="btn-reset-app">&#128465; Reinitialiser l'application</button>
+        </div>
       </div>
     </div>
 
@@ -483,14 +487,27 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=13"></script>
-    <script src="./js/db.js?v=13"></script>
-    <script src="./js/search.js?v=13"></script>
-    <script src="./js/meals.js?v=13"></script>
-    <script src="./js/recipes.js?v=13"></script>
-    <script src="./js/stats.js?v=13"></script>
-    <script src="./js/scanner.js?v=13"></script>
-    <script src="./js/auth.js?v=13"></script>
-    <script src="./js/app.js?v=13"></script>
+    <!-- Modale confirmation reinitialisation -->
+    <div id="reset-modal" class="modal hidden" aria-hidden="true" role="alertdialog" aria-labelledby="reset-modal-title" aria-describedby="reset-modal-desc">
+      <div class="modal-card reset-modal-card">
+        <p class="reset-modal-icon">&#9888;</p>
+        <h3 id="reset-modal-title" class="reset-modal-title">Reinitialiser CaloriFlash ?</h3>
+        <p id="reset-modal-desc" class="reset-modal-desc">Attention : toutes vos donnees seront definitivement perdues (repas saisis, recettes, repas types, aliments personnalises, favoris, objectifs). Cette action est irreversible.</p>
+        <div class="reset-modal-actions">
+          <button id="reset-cancel-btn" class="btn-secondary reset-cancel-btn">Annuler</button>
+          <button id="reset-confirm-btn" class="btn-reset-confirm">Reinitialiser</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="./js/foods-db.js?v=14"></script>
+    <script src="./js/db.js?v=14"></script>
+    <script src="./js/search.js?v=14"></script>
+    <script src="./js/meals.js?v=14"></script>
+    <script src="./js/recipes.js?v=14"></script>
+    <script src="./js/stats.js?v=14"></script>
+    <script src="./js/scanner.js?v=14"></script>
+    <script src="./js/auth.js?v=14"></script>
+    <script src="./js/app.js?v=14"></script>
   </body>
 </html>

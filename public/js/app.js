@@ -1237,6 +1237,36 @@
     modal.setAttribute("aria-hidden", "true");
   }
 
+  // =============================================
+  // Reset Application
+  // =============================================
+
+  function openResetModal() {
+    closeSettings();
+    const modal = $("reset-modal");
+    modal.classList.remove("hidden");
+    modal.setAttribute("aria-hidden", "false");
+    setTimeout(() => { const btn = $("reset-cancel-btn"); if (btn) btn.focus(); }, 80);
+  }
+
+  function closeResetModal() {
+    const modal = $("reset-modal");
+    modal.classList.add("hidden");
+    modal.setAttribute("aria-hidden", "true");
+  }
+
+  async function confirmReset() {
+    closeResetModal();
+    sessionStorage.clear();
+    await new Promise((resolve) => {
+      const req = indexedDB.deleteDatabase("caloriflash_db");
+      req.onsuccess = resolve;
+      req.onerror = resolve;
+      req.onblocked = resolve;
+    });
+    window.location.reload();
+  }
+
   function collectSettingsFromForm() {
     const objectiveType = $("objective-type").value;
     const goalCalories = safeInt($("goal-calories-input").value, state.goal);
@@ -1371,6 +1401,15 @@
     $("close-settings-btn").addEventListener("click", closeSettings);
     $("save-settings-btn").addEventListener("click", saveSettingsFromModal);
     $("macro-mode").addEventListener("change", updateMacroModeVisibility);
+
+    $("open-reset-btn").addEventListener("click", openResetModal);
+    $("reset-cancel-btn").addEventListener("click", closeResetModal);
+    $("reset-confirm-btn").addEventListener("click", confirmReset);
+    $("reset-modal").addEventListener("click", (e) => {
+      if (e.target === $("reset-modal")) {
+        closeResetModal();
+      }
+    });
     $("suggest-goal-btn").addEventListener("click", () => {
       const objectiveType = $("objective-type").value;
       const currentGoal = safeInt($("goal-calories-input").value, state.goal);
@@ -1572,6 +1611,7 @@
       if (e.key === "Escape") {
         closeDetailModal();
         closeCustomFoodModal();
+        closeResetModal();
       }
     });
 
