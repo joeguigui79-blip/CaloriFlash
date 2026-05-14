@@ -643,23 +643,28 @@
       toast("Nom requis");
       return;
     }
-    const entries = await window.CFMeals.getEntriesForDate(window.CFMeals.todayStr());
-    if (!entries.length) {
-      toast("Aucun aliment aujourd'hui");
-      return;
+    try {
+      const entries = await window.CFMeals.getEntriesForDate(window.CFMeals.todayStr());
+      if (!entries.length) {
+        toast("Ajoutez d'abord des aliments aujourd'hui");
+        return;
+      }
+      await window.CFRecipes.saveTemplate({
+        name,
+        items: entries.map((e) => ({
+          foodId: e.foodId,
+          foodName: e.foodName,
+          grams: e.grams,
+          mealType: e.mealType
+        }))
+      });
+      $("meal-template-name").value = "";
+      toast("Repas type enregistre !");
+      await renderTemplates();
+    } catch (err) {
+      console.error("saveTemplateFromToday error:", err);
+      toast("Erreur lors de l'enregistrement");
     }
-    await window.CFRecipes.saveTemplate({
-      name,
-      items: entries.map((e) => ({
-        foodId: e.foodId,
-        foodName: e.foodName,
-        grams: e.grams,
-        mealType: e.mealType
-      }))
-    });
-    $("meal-template-name").value = "";
-    toast("Repas type enregistre");
-    await renderTemplates();
   }
 
   async function addRecipeIngredient() {
