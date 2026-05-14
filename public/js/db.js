@@ -1,13 +1,14 @@
 (() => {
   const DB_NAME = "caloriflash_db";
-  const DB_VERSION = 1;
+  const DB_VERSION = 2;
 
   const STORES = {
     entries: "entries",
     favorites: "favorites",
     templates: "templates",
     recipes: "recipes",
-    settings: "settings"
+    settings: "settings",
+    custom_foods: "custom_foods"
   };
 
   let dbInstance = null;
@@ -36,6 +37,9 @@
         }
         if (!db.objectStoreNames.contains(STORES.settings)) {
           db.createObjectStore(STORES.settings, { keyPath: "key" });
+        }
+        if (!db.objectStoreNames.contains(STORES.custom_foods)) {
+          db.createObjectStore(STORES.custom_foods, { keyPath: "id" });
         }
       };
       req.onsuccess = () => {

@@ -9,7 +9,7 @@
     <link rel="manifest" href="./manifest.json" />
     <link rel="icon" href="./icons/icon-192.svg" />
     <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=12" />
+    <link rel="stylesheet" href="./css/style.css?v=13" />
   </head>
   <body>
     <div id="auth-overlay" class="overlay visible" aria-hidden="false">
@@ -89,26 +89,43 @@
       </section>
 
       <section id="view-add" class="view">
-        <div class="card">
+        <!-- Card explicative -->
+        <div class="card add-explain-card">
+          <p class="add-explain-icon">&#128269;</p>
           <h3>Ajouter un aliment</h3>
-          <div class="search-wrap">
-            <input id="quick-search" type="search" placeholder="Rechercher un aliment..." />
-            <button id="open-scanner-btn" class="btn-secondary">Scanner</button>
+          <p class="small-label">Recherchez un aliment ou scannez un code-barres pour l'ajouter a votre repas</p>
+        </div>
+
+        <!-- Choix du repas cible -->
+        <div class="card">
+          <p class="add-section-label">Repas cible</p>
+          <div id="add-meal-btns" class="add-meal-btn-row">
+            <button class="btn-add-meal selected" data-meal="petit-dejeuner">Petit-dej</button>
+            <button class="btn-add-meal" data-meal="dejeuner">Dejeuner</button>
+            <button class="btn-add-meal" data-meal="diner">Diner</button>
+            <button class="btn-add-meal" data-meal="collations">Collation</button>
           </div>
-          <div class="meal-preselect-row">
-            <span class="meal-preselect-label">Repas :</span>
-            <select id="meal-select">
-              <option value="petit-dejeuner">Petit-dejeuner</option>
-              <option value="dejeuner">Dejeuner</option>
-              <option value="diner">Diner</option>
-              <option value="collations">Collations</option>
-            </select>
+        </div>
+
+        <!-- Recherche + Scanner + Creer -->
+        <div class="card" id="add-search-card">
+          <div class="add-search-row">
+            <input id="quick-search" type="search" placeholder="Rechercher un aliment..." class="add-search-input" />
+            <button id="open-scanner-btn" class="btn-scan-big" aria-label="Scanner un code-barres">&#128247;</button>
           </div>
-          <!-- legacy inputs kept hidden for internal use -->
+          <button id="create-custom-food-btn" class="btn-secondary add-create-btn">+ Creer un aliment</button>
+          <!-- Legacy hidden inputs pour compatibilite interne -->
+          <select id="meal-select" class="hidden">
+            <option value="petit-dejeuner">Petit-dejeuner</option>
+            <option value="dejeuner">Dejeuner</option>
+            <option value="diner">Diner</option>
+            <option value="collations">Collations</option>
+          </select>
           <select id="portion-select" class="hidden"></select>
           <input id="quantity-input" type="number" min="1" step="1" value="100" class="hidden" />
           <button id="add-selected-btn" class="hidden btn-primary">Ajouter au repas</button>
         </div>
+
         <div id="quick-lists" class="stack"></div>
       </section>
 
@@ -394,14 +411,86 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=12"></script>
-    <script src="./js/db.js?v=12"></script>
-    <script src="./js/search.js?v=12"></script>
-    <script src="./js/meals.js?v=12"></script>
-    <script src="./js/recipes.js?v=12"></script>
-    <script src="./js/stats.js?v=12"></script>
-    <script src="./js/scanner.js?v=12"></script>
-    <script src="./js/auth.js?v=12"></script>
-    <script src="./js/app.js?v=12"></script>
+    <!-- Modal CRUD Aliments personnalises -->
+    <div id="custom-food-modal" class="food-detail-overlay hidden" role="dialog" aria-modal="true" aria-hidden="true">
+      <div class="food-detail-sheet">
+        <div class="food-detail-header">
+          <button id="cf-back-btn" class="btn-back-modal">&#8592; Annuler</button>
+          <span id="cf-modal-tag" class="meal-tag">Aliment</span>
+        </div>
+        <h2 id="cf-modal-title" class="food-detail-name">Creer un aliment</h2>
+
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">1</span> Nom</p>
+          <input id="cf-name" type="text" placeholder="Ex : Yaourt grec maison" />
+        </div>
+
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">2</span> Categorie</p>
+          <select id="cf-category">
+            <option value="custom">Personnalise</option>
+            <option value="fruits">Fruits</option>
+            <option value="legumes">Legumes</option>
+            <option value="feculents">Feculents</option>
+            <option value="viandes">Viandes</option>
+            <option value="poissons">Poissons</option>
+            <option value="oeufs">Oeufs</option>
+            <option value="produits laitiers">Produits laitiers</option>
+            <option value="pains/viennoiseries">Pains et viennoiseries</option>
+            <option value="biscuits/gateaux">Biscuits et gateaux</option>
+            <option value="boissons">Boissons</option>
+            <option value="plats courants">Plats courants</option>
+            <option value="sauces/condiments">Sauces et condiments</option>
+            <option value="cereales">Cereales</option>
+            <option value="snacks">Snacks</option>
+          </select>
+        </div>
+
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">3</span> Valeurs nutritionnelles (pour 100g)</p>
+          <div class="cf-macro-grid">
+            <div class="cf-macro-field">
+              <label class="cf-macro-label">Calories (kcal)</label>
+              <input id="cf-calories" type="number" min="0" step="1" placeholder="0" />
+            </div>
+            <div class="cf-macro-field">
+              <label class="cf-macro-label">Proteines (g)</label>
+              <input id="cf-proteins" type="number" min="0" step="0.1" placeholder="0" />
+            </div>
+            <div class="cf-macro-field">
+              <label class="cf-macro-label">Glucides (g)</label>
+              <input id="cf-carbs" type="number" min="0" step="0.1" placeholder="0" />
+            </div>
+            <div class="cf-macro-field">
+              <label class="cf-macro-label">Lipides (g)</label>
+              <input id="cf-fats" type="number" min="0" step="0.1" placeholder="0" />
+            </div>
+          </div>
+        </div>
+
+        <div class="food-detail-section">
+          <p class="step-label"><span class="step-num">4</span> Portions standards (optionnel)</p>
+          <div id="cf-portions-list" class="cf-portions-list"></div>
+          <div class="cf-add-portion-row">
+            <input id="cf-portion-name" type="text" placeholder="Nom (ex: bol)" />
+            <input id="cf-portion-grams" type="number" min="1" placeholder="g" class="cf-portion-grams-input" />
+            <button id="cf-add-portion-btn" class="btn-secondary" style="flex-shrink:0">+</button>
+          </div>
+        </div>
+
+        <button id="cf-save-btn" class="btn-add-big">SAUVEGARDER</button>
+        <button id="cf-delete-btn" class="btn-secondary cf-delete-btn hidden">Supprimer cet aliment</button>
+      </div>
+    </div>
+
+    <script src="./js/foods-db.js?v=13"></script>
+    <script src="./js/db.js?v=13"></script>
+    <script src="./js/search.js?v=13"></script>
+    <script src="./js/meals.js?v=13"></script>
+    <script src="./js/recipes.js?v=13"></script>
+    <script src="./js/stats.js?v=13"></script>
+    <script src="./js/scanner.js?v=13"></script>
+    <script src="./js/auth.js?v=13"></script>
+    <script src="./js/app.js?v=13"></script>
   </body>
 </html>

@@ -42,6 +42,9 @@
     if (!type || type === "all") {
       return true;
     }
+    if (food.is_custom) {
+      return true;
+    }
     const cat = food.categorie;
     if (type === "bruts") {
       return ["fruits", "legumes", "feculents", "viandes", "poissons", "oeufs"].includes(cat);
@@ -58,9 +61,17 @@
     return true;
   }
 
-  function rankFoods(query, options = {}) {
+  function getEffectiveFoods() {
+    var customs = window.CUSTOM_FOODS_LIST || [];
+    var customIds = new Set(customs.map(function (f) { return f.id; }));
+    var base = (window.FOODS_DB || []).filter(function (f) { return !customIds.has(f.id); });
+    return customs.concat(base);
+  }
+
+  function rankFoods(query, options) {
+    options = options || {};
     const q = normalize(query);
-    const foods = window.FOODS_DB || [];
+    const foods = getEffectiveFoods();
     const favoritesSet = options.favoritesSet || new Set();
     const recentSet = options.recentSet || new Set();
     const type = options.type || "all";
@@ -82,6 +93,9 @@
       }
       if (recentSet.has(food.id)) {
         weight += 20;
+      }
+      if (food.is_custom) {
+        weight += 15;
       }
       rows.push({ food, score: weight });
     }
