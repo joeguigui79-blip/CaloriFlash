@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#8bc34a" />
+    <title>Politique de confidentialite - CaloriFlash</title>
+    <style>
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        background: #f8f9f5;
+        color: #333;
+        line-height: 1.7;
+        font-size: 16px;
+      }
+
+      a { color: #8bc34a; text-decoration: none; }
+      a:hover { text-decoration: underline; }
+
+      /* Header */
+      .topbar {
+        background: #8bc34a;
+        color: #fff;
+        padding: 14px 20px;
+        display: flex;
+        align-items: center;
+        gap: 14px;
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.12);
+      }
+      .topbar img {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        flex-shrink: 0;
+      }
+      .topbar-text h1 {
+        font-size: 1.1rem;
+        font-weight: 700;
+        line-height: 1.2;
+      }
+      .topbar-text p {
+        font-size: 0.78rem;
+        opacity: 0.85;
+      }
+
+      /* Back link */
+      .back-bar {
+        background: #fff;
+        border-bottom: 1px solid #e8ecdf;
+        padding: 10px 20px;
+      }
+      .back-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        font-size: 0.9rem;
+        color: #8bc34a;
+        font-weight: 600;
+      }
+      .back-link::before {
+        content: "\2190";
+        font-size: 1rem;
+      }
+
+      /* Main content */
+      .content {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 28px 20px 60px;
+      }
+
+      .page-title {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #2e3a1f;
+        margin-bottom: 4px;
+      }
+      .update-date {
+        font-size: 0.82rem;
+        color: #888;
+        margin-bottom: 28px;
+      }
+
+      /* Cards */
+      .card {
+        background: #fff;
+        border-radius: 14px;
+        padding: 22px 20px;
+        margin-bottom: 16px;
+        box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+      }
+
+      .card h2 {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #5a7a1a;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .card h2 .icon {
+        font-size: 1.1rem;
+      }
+
+      .card p, .card li {
+        font-size: 0.93rem;
+        color: #444;
+        margin-bottom: 6px;
+      }
+      .card ul {
+        padding-left: 18px;
+        margin-top: 6px;
+      }
+      .card li {
+        margin-bottom: 4px;
+      }
+
+      /* Highlight badge */
+      .badge-local {
+        display: inline-block;
+        background: #eaf4d3;
+        color: #4a7a10;
+        border-radius: 20px;
+        padding: 4px 14px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      /* Contact link */
+      .contact-link {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        color: #8bc34a;
+        font-weight: 600;
+        font-size: 0.95rem;
+        word-break: break-all;
+      }
+
+      /* Footer */
+      .footer {
+        text-align: center;
+        font-size: 0.78rem;
+        color: #aaa;
+        padding: 24px 20px 32px;
+        border-top: 1px solid #e8ecdf;
+      }
+    </style>
+  </head>
+  <body>
+
+    <header class="topbar">
+      <img src="./icons/icon-192.png" alt="Logo CaloriFlash" />
+      <div class="topbar-text">
+        <h1>CaloriFlash</h1>
+        <p>Politique de confidentialite</p>
+      </div>
+    </header>
+
+    <div class="back-bar">
+      <a href="./index.html" class="back-link">Retour a l'application</a>
+    </div>
+
+    <main class="content">
+
+      <h1 class="page-title">Politique de confidentialite</h1>
+      <p class="update-date">Derniere mise a jour : 15 mai 2026</p>
+
+      <!-- 1. Responsable -->
+      <div class="card">
+        <h2><span class="icon">&#128100;</span> Responsable du traitement</h2>
+        <p><strong>Nom :</strong> Joseph GUIGNARD</p>
+        <p><strong>Application :</strong> CaloriFlash</p>
+        <p><strong>Contact :</strong> <a href="mailto:joseph.guignard01@gmail.com" class="contact-link">joseph.guignard01@gmail.com</a></p>
+      </div>
+
+      <!-- 2. Donnees collectees -->
+      <div class="card">
+        <h2><span class="icon">&#128274;</span> Donnees collectees</h2>
+        <span class="badge-local">100 % local — aucune donnee envoyee</span>
+        <p>CaloriFlash <strong>ne collecte, ne transmet et ne stocke aucune donnee personnelle sur un serveur externe.</strong></p>
+        <p>Toutes vos donnees (recettes, repas, calories, objectifs, aliments personnalises) sont conservees <strong>uniquement sur votre appareil</strong>, dans la base de donnees locale du navigateur (IndexedDB).</p>
+        <p>Aucune transmission reseau de donnees utilisateur n'a lieu.</p>
+      </div>
+
+      <!-- 3. Stockage local -->
+      <div class="card">
+        <h2><span class="icon">&#128241;</span> Stockage local</h2>
+        <p><strong>Technologie utilisee :</strong> IndexedDB (base de donnees integree au navigateur / a l'application).</p>
+        <p>Vos donnees restent sur votre appareil et ne quittent jamais celui-ci. Vous pouvez les supprimer a tout moment :</p>
+        <ul>
+          <li>En vidant les donnees de l'application depuis les parametres de votre navigateur ou de votre appareil Android.</li>
+          <li>En desinstallant l'application (cela efface toutes les donnees locales).</li>
+          <li>Via le bouton <em>Reinitialiser l'application</em> accessible dans les parametres de CaloriFlash.</li>
+        </ul>
+      </div>
+
+      <!-- 4. Cookies et traceurs -->
+      <div class="card">
+        <h2><span class="icon">&#127850;</span> Cookies et traceurs</h2>
+        <p>CaloriFlash <strong>n'utilise aucun cookie de suivi</strong>, aucun pixel de tracking, et aucun outil d'analytics tiers.</p>
+        <ul>
+          <li>Pas de Google Analytics.</li>
+          <li>Pas de Facebook Pixel.</li>
+          <li>Pas de toute autre solution de mesure d'audience.</li>
+        </ul>
+        <p>Un <strong>service worker</strong> est utilise uniquement pour permettre le fonctionnement hors-ligne de l'application (mise en cache locale des ressources). Il ne transmet aucune donnee a l'exterieur.</p>
+      </div>
+
+      <!-- 5. Partage avec des tiers -->
+      <div class="card">
+        <h2><span class="icon">&#128275;</span> Partage avec des tiers</h2>
+        <p><strong>Aucun.</strong> Aucune donnee n'etant collectee ni transmise, aucun partage avec un tiers n'est possible ou n'a lieu.</p>
+      </div>
+
+      <!-- 6. Publicites -->
+      <div class="card">
+        <h2><span class="icon">&#128683;</span> Publicites</h2>
+        <p>CaloriFlash <strong>ne contient aucune publicite</strong> et n'est associe a aucun reseau publicitaire.</p>
+      </div>
+
+      <!-- 7. Droits RGPD -->
+      <div class="card">
+        <h2><span class="icon">&#9878;</span> Vos droits (RGPD)</h2>
+        <p>Conformement au Reglement General sur la Protection des Donnees (RGPD), vous disposez des droits suivants :</p>
+        <ul>
+          <li><strong>Droit d'acces</strong> : consultez vos donnees directement dans l'application.</li>
+          <li><strong>Droit de rectification</strong> : modifiez vos donnees directement dans l'application.</li>
+          <li><strong>Droit a l'effacement</strong> : supprimez vos donnees depuis l'application ou en desinstallant celle-ci.</li>
+          <li><strong>Droit a la portabilite</strong> : vos donnees etant stockees localement, elles restent en permanence sous votre controle exclusif.</li>
+        </ul>
+        <p>L'exercice de ces droits ne necessite aucune demande aupres d'un tiers : vous les exercez directement via l'interface de l'application ou les parametres de votre appareil.</p>
+      </div>
+
+      <!-- 8. Securite -->
+      <div class="card">
+        <h2><span class="icon">&#128737;</span> Securite</h2>
+        <p>Les donnees stockees dans IndexedDB sont gees par le mecanisme de securite du navigateur (isolation par origine). Elles sont accessibles <strong>uniquement depuis votre appareil</strong> et uniquement par l'application CaloriFlash.</p>
+        <p>Aucun acces distant a vos donnees n'est possible, car elles ne transitent jamais par un reseau.</p>
+      </div>
+
+      <!-- 9. Modifications -->
+      <div class="card">
+        <h2><span class="icon">&#128203;</span> Modifications de cette politique</h2>
+        <p>Toute modification de cette politique de confidentialite sera publiee sur cette page, avec mise a jour de la date indiquee en haut du document. Nous vous encourageons a la consulter periodiquement.</p>
+      </div>
+
+      <!-- 10. Contact -->
+      <div class="card">
+        <h2><span class="icon">&#9993;</span> Contact</h2>
+        <p>Pour toute question relative a cette politique de confidentialite ou a la gestion de vos donnees :</p>
+        <p style="margin-top:10px">
+          <a href="mailto:joseph.guignard01@gmail.com" class="contact-link">&#9993; joseph.guignard01@gmail.com</a>
+        </p>
+      </div>
+
+    </main>
+
+    <footer class="footer">
+      <p>CaloriFlash &mdash; Application de suivi nutritionnel 100&nbsp;% locale</p>
+      <p style="margin-top:4px">&copy; 2026 Joseph GUIGNARD</p>
+    </footer>
+
+  </body>
+</html>

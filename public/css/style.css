@@ -359,6 +359,20 @@ select {
   box-shadow: var(--shadow);
 }
 
+.privacy-footer-link {
+  text-align: center;
+  margin: 8px 0 80px;
+  font-size: 0.78rem;
+}
+.privacy-footer-link a {
+  color: var(--muted);
+  text-decoration: none;
+  opacity: 0.8;
+}
+.privacy-footer-link a:hover {
+  text-decoration: underline;
+}
+
 .bottom-tabs {
   position: fixed;
   left: 0;

@@ -1,4 +1,4 @@
-const CACHE_NAME = "caloriflash-v17";
+const CACHE_NAME = "caloriflash-v18";
 const CORE_ASSETS = [
   "./",
   "./index.html",
@@ -15,7 +15,8 @@ const CORE_ASSETS = [
   "./icons/icon-192.png",
   "./icons/icon-512.png",
   "./icons/icon-192-maskable.png",
-  "./icons/icon-512-maskable.png"
+  "./icons/icon-512-maskable.png",
+  "./privacy.html"
 ];
 
 self.addEventListener("install", (event) => {
