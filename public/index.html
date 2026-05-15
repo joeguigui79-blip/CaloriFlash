@@ -7,22 +7,13 @@
     <meta name="description" content="CaloriFlash - suivi calories 100% local" />
     <title>CaloriFlash</title>
     <link rel="manifest" href="./manifest.json" />
-    <link rel="icon" href="./icons/icon-192.svg" />
-    <link rel="apple-touch-icon" href="./icons/icon-192.svg" />
-    <link rel="stylesheet" href="./css/style.css?v=16" />
+    <link rel="icon" href="./icons/icon-192.png" />
+    <link rel="apple-touch-icon" href="./icons/icon-192.png" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <link rel="stylesheet" href="./css/style.css?v=17" />
   </head>
   <body>
-    <div id="auth-overlay" class="overlay visible" aria-hidden="false">
-      <div class="auth-card">
-        <h1>CaloriFlash</h1>
-        <p class="subtitle">Acces protege</p>
-        <label for="password-input">Mot de passe</label>
-        <input id="password-input" type="password" inputmode="text" autocomplete="off" />
-        <button id="login-btn" class="btn-primary">Entrer</button>
-        <p id="auth-error" class="error"></p>
-      </div>
-    </div>
-
     <header class="topbar">
       <div>
         <h2>CaloriFlash</h2>
@@ -34,7 +25,7 @@
       </div>
     </header>
 
-    <main id="app" class="app hidden">
+    <main id="app" class="app">
       <section id="view-today" class="view active">
         <div class="card hero hero-v2">
           <div>
@@ -494,14 +485,13 @@
       </div>
     </div>
 
-    <script src="./js/foods-db.js?v=16"></script>
-    <script src="./js/db.js?v=16"></script>
-    <script src="./js/search.js?v=16"></script>
-    <script src="./js/meals.js?v=16"></script>
-    <script src="./js/recipes.js?v=16"></script>
-    <script src="./js/stats.js?v=16"></script>
-    <script src="./js/scanner.js?v=16"></script>
-    <script src="./js/auth.js?v=16"></script>
-    <script src="./js/app.js?v=16"></script>
+    <script src="./js/foods-db.js?v=17"></script>
+    <script src="./js/db.js?v=17"></script>
+    <script src="./js/search.js?v=17"></script>
+    <script src="./js/meals.js?v=17"></script>
+    <script src="./js/recipes.js?v=17"></script>
+    <script src="./js/stats.js?v=17"></script>
+    <script src="./js/scanner.js?v=17"></script>
+    <script src="./js/app.js?v=17"></script>
   </body>
 </html>

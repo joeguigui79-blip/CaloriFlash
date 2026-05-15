@@ -1,25 +1,78 @@
 {
+  "id": "/CaloriFlash/",
   "name": "CaloriFlash",
   "short_name": "CaloriFlash",
   "description": "Suivi calories 100% local, rapide et mobile",
+  "lang": "fr",
+  "dir": "ltr",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
   "background_color": "#f8f9f5",
   "theme_color": "#8bc34a",
   "orientation": "portrait-primary",
+  "categories": ["health", "fitness", "lifestyle"],
   "icons": [
     {
-      "src": "./icons/icon-192.svg",
+      "src": "./icons/icon-192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
-      "src": "./icons/icon-512.svg",
+      "src": "./icons/icon-512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any maskable"
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "./icons/icon-192-maskable.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "./icons/icon-512-maskable.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "./icons/screenshots/screenshot-aujourdhui.png",
+      "sizes": "968x2376",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Dashboard Aujourd'hui"
+    },
+    {
+      "src": "./icons/screenshots/screenshot-ajouter.png",
+      "sizes": "968x2376",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Ajouter un aliment"
+    },
+    {
+      "src": "./icons/screenshots/screenshot-repas.png",
+      "sizes": "968x2376",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Repas types"
+    },
+    {
+      "src": "./icons/screenshots/screenshot-recettes.png",
+      "sizes": "968x2376",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Recettes"
+    },
+    {
+      "src": "./icons/screenshots/screenshot-stats.png",
+      "sizes": "968x2376",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Statistiques"
     }
   ]
 }

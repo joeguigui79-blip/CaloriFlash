@@ -1320,45 +1320,6 @@
     });
   }
 
-  function initAuthGate() {
-    const overlay = $("auth-overlay");
-    const app = $("app");
-    const input = $("password-input");
-    const btn = $("login-btn");
-    const errEl = $("auth-error");
-
-    async function unlock() {
-      const ok = await window.CFAuth.checkPassword(input.value);
-      if (!ok) {
-        errEl.textContent = "Mot de passe incorrect";
-        return;
-      }
-      window.CFAuth.setAuthenticated(true);
-      overlay.classList.remove("visible");
-      overlay.setAttribute("aria-hidden", "true");
-      app.classList.remove("hidden");
-      errEl.textContent = "";
-      input.value = "";
-      await bootAfterAuth();
-    }
-
-    if (window.CFAuth.isAuthenticated()) {
-      overlay.classList.remove("visible");
-      app.classList.remove("hidden");
-      bootAfterAuth();
-      return;
-    }
-
-    overlay.classList.add("visible");
-    app.classList.add("hidden");
-    btn.addEventListener("click", unlock);
-    input.addEventListener("keydown", (e) => {
-      if (e.key === "Enter") {
-        unlock();
-      }
-    });
-  }
-
   function registerSw() {
     if ("serviceWorker" in navigator) {
       navigator.serviceWorker.register("./sw.js").catch(() => {});
@@ -1624,7 +1585,7 @@
   function init() {
     registerSw();
     initTheme();
-    initAuthGate();
+    bootAfterAuth();
   }
 
   document.addEventListener("DOMContentLoaded", init);
